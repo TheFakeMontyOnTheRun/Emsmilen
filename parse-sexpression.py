@@ -22,7 +22,7 @@ def print_list(nodes):
             print(str(node))
 
 
-with open('/home/monty/hello.dis', 'r') as myfile:
+with open('hello.dis', 'r') as myfile:
     data = myfile.read()
     sexp = loads(data, nil='nop', true='1', false='0', line_comment='#')
     print_list(sexp)
