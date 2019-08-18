@@ -17,6 +17,10 @@ class FunctionType:
     parameters = []
     returnType = void_type
 
+class Function:
+    name = ""
+    functionType = None
+
 def is_list(possible_list):
     att = dir(possible_list)
 
@@ -76,7 +80,48 @@ def parse_function_declaration(type_def):
 
 
 exports = dict()
-declared_funcs = dict()
+declared_func_types = dict()
+
+def emit_pop(size):
+    print( "POP " + str(size) )
+
+def emit_pop_pc():
+    print("_PC = stack_top()")
+    print("POP 4")
+    print("goto _PC")
+
+def parameters_size( functype ):
+    total = 0
+
+    for param in functype.parameters:
+        total += 4 if param == "i32" else 8
+
+    return total
+
+def do_nothing_for_now():
+    bla = 0
+
+def generate_function(func_node):
+
+    func_type = None
+
+    for node in func_node:
+        if is_list(node) and len(node) > 0:
+            if get_atom_value(node[0]) == "param":
+                do_nothing_for_now()
+            elif get_atom_value(node[0]) == "result":
+                do_nothing_for_now()
+            elif get_atom_value(node[0]) == "type":
+                func_type = get_atom_value( node[1] )
+
+            elif get_atom_value(node[0]) == ";":
+                do_nothing_for_now()
+            else:
+                print( get_atom_value( node ) )
+
+
+    emit_pop(parameters_size(declared_func_types[func_type]))
+    emit_pop_pc()
 
 
 def print_list(nodes, path):
@@ -87,9 +132,11 @@ def print_list(nodes, path):
 
     if path == "/module/func":
         print("function definition:" + exports[get_atom_value( nodes[1] )] )
+        generate_function( nodes )
+        return
 
     if path == "/module/type" and get_atom_value( nodes[2][0] ) == "func":
-        declared_funcs[get_atom_value( nodes[1] )] = parse_function_declaration(nodes[2])
+        declared_func_types[get_atom_value(nodes[1])] = parse_function_declaration(nodes[2])
         return;
 
 
