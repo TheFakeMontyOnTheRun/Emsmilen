@@ -108,19 +108,27 @@ def generate_function(func_node):
     for node in func_node:
         if is_list(node) and len(node) > 0:
             if get_atom_value(node[0]) == "param":
+                if func_type is None:
+                    func_type = FunctionType()
+                    func_type.parameters = parse_parameter_declaration(node)
+
                 do_nothing_for_now()
             elif get_atom_value(node[0]) == "result":
                 do_nothing_for_now()
             elif get_atom_value(node[0]) == "type":
-                func_type = get_atom_value( node[1] )
+                func_index = get_atom_value( node[1] )
+
+                if func_index in declared_func_types:
+                    func_type = declared_func_types[func_index]
 
             elif get_atom_value(node[0]) == ";":
                 do_nothing_for_now()
             else:
                 print( get_atom_value( node ) )
 
+    if func_type is not None:
+        emit_pop(parameters_size(func_type))
 
-    emit_pop(parameters_size(declared_func_types[func_type]))
     emit_pop_pc()
 
 
