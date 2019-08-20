@@ -1,4 +1,54 @@
 from sexpdata import loads, Symbol
+import sys
+
+operands_per_instructions = {
+    "i32.load8_s" : 0,
+    "i32.load8_u" : 0,
+    "i32.get" : 1,
+    "func" : 1,
+    "local.get" : 1,
+    "i32.const" : 1,
+    "i64.const" : 1,
+    "i32.add" : 0,
+    "global.get" : 1,
+    "i32.sub" : 0,
+    "block" : 0,
+    "end" : 0,
+    "i32.le_u" : 0,
+    "i32.gt_u": 0,
+    "i32.ge_u": 0,
+    "i32.load" : 0,
+    "i64.load" : 0,
+    "i32.and" : 0,
+    "i32.lt_u": 0,
+    "i32.shr_u": 0,
+    "i32.shl": 0,
+    "offset=": 1,
+    "align=": 1,
+    "i32.xor": 0,
+    "i32.eq": 0,
+    "i32.eqz": 0,
+    "i32.ne": 0,
+    "i32.or": 0,
+    "i32.rotl": 0,
+    "i32.store": 0,
+    "i64.store": 0,
+    "select": 0,
+    "if" : 0,
+    "else" : 0,
+    "loop" : 0,
+    "drop" : 0,
+    "return" : 0,
+    "memory.grow" : 0,
+    "unreachable" : 0,
+    "local.tee" : 1,
+    "local.set" : 1,
+    "br": 1,
+    "call": 1,
+    "br_if": 1,
+    "global.set" : 1,
+}
+
 
 class TypeName:
 
@@ -104,7 +154,8 @@ def do_nothing_for_now():
 def generate_function(func_node):
 
     func_type = None
-    operator = None
+    buffered_nodes = []
+    pending_operands = 0
 
     for node in func_node:
         if is_list(node) and len(node) > 0:
@@ -122,8 +173,6 @@ def generate_function(func_node):
                 if func_index in declared_func_types:
                     func_type = declared_func_types[func_index]
 
-            elif get_atom_value(node[0]) == ";":
-                do_nothing_for_now()
             elif get_atom_value(node[0]) == "local":
                 do_nothing_for_now()
             elif get_atom_value(node[0]).startswith(";"):
@@ -131,16 +180,31 @@ def generate_function(func_node):
             else:
                 print( get_atom_value( node ) )
         else:
-            if operator is None:
-                operator = get_atom_value(node)
+            atom_value = get_atom_value(node)
+
+            if atom_value.startswith(";"):
+                print("Line comments are not supported for now - sorry")
+                exit(-1)
+
+            if len(buffered_nodes) == 0:
+                if atom_value not in operands_per_instructions:
+                    print("instruction not handled: " + atom_value )
+                    exit(-1)
+
+                pending_operands = operands_per_instructions[atom_value]
+                buffered_nodes.append(atom_value)
             else:
-                print(">" + operator + " " + get_atom_value(node))
-                operator = None
+                pending_operands = pending_operands - 1
+                buffered_nodes.append(atom_value)
 
-    if func_type is not None:
-        emit_pop(parameters_size(func_type))
 
-    emit_pop_pc()
+            if pending_operands == 0:
+                for operand in buffered_nodes:
+                    sys.stdout.write(operand + " " )
+
+                print()
+                buffered_nodes = []
+
 
 
 def print_list(nodes, path):
