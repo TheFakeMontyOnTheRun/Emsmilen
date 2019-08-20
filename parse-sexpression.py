@@ -125,6 +125,8 @@ def generate_function(func_node):
                 do_nothing_for_now()
             elif get_atom_value(node[0]) == "local":
                 do_nothing_for_now()
+            elif get_atom_value(node[0]).startswith(";"):
+                continue
             else:
                 print( get_atom_value( node ) )
 
@@ -166,8 +168,7 @@ def print_list(nodes, path):
             else:
                 print(path + "/" + get_atom_value(node))
 
-
 with open('simple.dis', 'r') as myfile:
     data = myfile.read()
-    sexp = loads(data, nil='nop', true='1', false='0', line_comment='#')
+    sexp = loads(data, nil='nop', true='true', false='false', line_comment=';;')
     print_list(sexp, "/" + get_atom_value(sexp[0]))
