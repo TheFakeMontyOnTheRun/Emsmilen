@@ -141,7 +141,11 @@ def print_list(nodes, path):
 
 
     if path == "/module/func":
-        print("function definition:" + exports[get_atom_value( nodes[1] )] )
+        func_def = get_atom_value( nodes[1] )
+
+        if func_def in exports:
+            print("function definition:" + exports[func_def])
+
         generate_function( nodes )
         return
 
