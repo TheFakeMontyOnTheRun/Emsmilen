@@ -123,6 +123,8 @@ def generate_function(func_node):
 
             elif get_atom_value(node[0]) == ";":
                 do_nothing_for_now()
+            elif get_atom_value(node[0]) == "local":
+                do_nothing_for_now()
             else:
                 print( get_atom_value( node ) )
 
