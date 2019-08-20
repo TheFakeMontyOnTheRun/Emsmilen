@@ -1,11 +1,12 @@
 from sexpdata import loads, Symbol
 import sys
 
+from emit_smilebasic import *
+
 operands_per_instructions = {
-    "i32.load8_s" : 0,
+    "i32.load8_s": 0,
     "i32.load8_u" : 0,
     "i32.get" : 1,
-    "func" : 1,
     "local.get" : 1,
     "i32.const" : 1,
     "i64.const" : 1,
@@ -13,6 +14,7 @@ operands_per_instructions = {
     "global.get" : 1,
     "i32.sub" : 0,
     "block" : 0,
+    "func" : 1,
     "end" : 0,
     "i32.le_u" : 0,
     "i32.gt_u": 0,
@@ -49,15 +51,52 @@ operands_per_instructions = {
     "global.set" : 1,
 }
 
-
-class TypeName:
-
-    name = None
-
-    def __init__(self, val):
-        self.name = val
-
-void_type = TypeName("void")
+instruction_emitters = {
+    "i32.load8_u" : emit_i32_load8_u,
+    "i32.load8_s" : emit_i32_load8_s,
+    "i32.get" : emit_i32_get,
+    "local.get" : emit_local_get,
+    "i32.const" : emit_i32_const,
+    "i64.const" : emit_i64_const,
+    "i32.add" : emit_i32_add,
+    "global.get" : emit_global_get,
+    "i32.sub" : emit_i32_sub,
+    "block" : emit_block,
+    "end" : emit_end,
+    "i32.le_u" : emit_i32_le_u,
+    "i32.gt_u": emit_i32_gt_u,
+    "i32.ge_u": emit_i32_ge_u,
+    "i32.load" : emit_i32_load,
+    "i64.load" : emit_i64_load,
+    "i32.and" : emit_i32_and,
+    "i32.lt_u": emit_i32_lt_u,
+    "i32.shr_u": emit_i32_shr_u,
+    "i32.shl": emit_i32_shl,
+    "offset=": emit_offset,
+    "align=": emit_align,
+    "i32.xor": emit_i32_xor,
+    "i32.eq": emit_i32_eq,
+    "i32.eqz": emit_i32_eqz,
+    "i32.ne": emit_i32_ne,
+    "i32.or": emit_i32_or,
+    "i32.rotl": emit_i32_rotl,
+    "i32.store": emit_i32_store,
+    "i64.store": emit_i64_store,
+    "select": emit_select,
+    "if" : emit_if,
+    "else" : emit_else,
+    "loop" : emit_loop,
+    "drop" : emit_drop,
+    "return" : emit_return,
+    "memory.grow" : emit_memory_grow,
+    "unreachable" : emit_unreachable,
+    "local.tee" : emit_local_tee,
+    "local.set" : emit_local_set,
+    "br": emit_br,
+    "call": emit_call,
+    "br_if": emit_br_if,
+    "global.set" : emit_global_set,
+}
 
 class ValueTypeDefinition:
     name = None
@@ -65,7 +104,7 @@ class ValueTypeDefinition:
 
 class FunctionType:
     parameters = []
-    returnType = void_type
+    returnType = None
 
 class Function:
     name = ""
@@ -151,22 +190,55 @@ def parameters_size( functype ):
 def do_nothing_for_now():
     bla = 0
 
+def parse(instruction):
+
+    if instruction[0] in instruction_emitters:
+        sys.stdout.write("REM ")
+
+        for operand in instruction:
+            sys.stdout.write(operand + " ")
+
+        print()
+
+        instruction_emitters[instruction[0]](instruction)
+
+
+def function_has_parameters(func_node):
+    for node in func_node:
+        if is_list(node) and len(node) > 0:
+            if get_atom_value(node[0]) == "param":
+                return True
+
+    return False
+
+
 def generate_function(func_node):
 
     func_type = None
     buffered_nodes = []
     pending_operands = 0
 
+    emit_func(["func", get_atom_value( func_node[1] )])
+
+    if not function_has_parameters(func_node):
+        emit_empty_param_list()
+
     for node in func_node:
         if is_list(node) and len(node) > 0:
             if get_atom_value(node[0]) == "param":
                 if func_type is None:
                     func_type = FunctionType()
-                    func_type.parameters = parse_parameter_declaration(node)
 
-                do_nothing_for_now()
+                func_type.parameters = parse_parameter_declaration(node)
+
+                emit_parameter_list(func_type.parameters)
+
             elif get_atom_value(node[0]) == "result":
-                do_nothing_for_now()
+                if func_type is None:
+                    func_type = FunctionType()
+
+                func_type.returnType = parse_result_declaration(node)
+
             elif get_atom_value(node[0]) == "type":
                 func_index = get_atom_value( node[1] )
 
@@ -174,7 +246,16 @@ def generate_function(func_node):
                     func_type = declared_func_types[func_index]
 
             elif get_atom_value(node[0]) == "local":
-                do_nothing_for_now()
+                node_index = 0
+
+                if func_type is not None and func_type.parameters is not None:
+                    node_index = len( func_type.parameters )
+
+                for local in node:
+                    if node_index != 0:
+                        print("DIM L" + str(node_index) )
+                    node_index = node_index + 1
+
             elif get_atom_value(node[0]).startswith(";"):
                 continue
             else:
@@ -199,13 +280,11 @@ def generate_function(func_node):
 
 
             if pending_operands == 0:
-                for operand in buffered_nodes:
-                    sys.stdout.write(operand + " " )
-
-                print()
+                parse(buffered_nodes)
                 buffered_nodes = []
 
 
+    emit_end_function(func_node, func_type )
 
 def print_list(nodes, path):
 
@@ -239,7 +318,9 @@ def print_list(nodes, path):
             else:
                 print(path + "/" + get_atom_value(node))
 
-with open('simple.dis', 'r') as myfile:
+with open('simplest.dis', 'r') as myfile:
     data = myfile.read()
-    sexp = loads(data, nil='nop', true='true', false='false', line_comment=';;')
+    sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
+    emit_memory()
     print_list(sexp, "/" + get_atom_value(sexp[0]))
+    print("MEMORY[0] = 1\nMEMORY[1] = 5\nCALL F_MAIN(1, 0)")
