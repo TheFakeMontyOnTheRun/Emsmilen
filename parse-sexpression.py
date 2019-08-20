@@ -104,6 +104,7 @@ def do_nothing_for_now():
 def generate_function(func_node):
 
     func_type = None
+    operator = None
 
     for node in func_node:
         if is_list(node) and len(node) > 0:
@@ -129,6 +130,12 @@ def generate_function(func_node):
                 continue
             else:
                 print( get_atom_value( node ) )
+        else:
+            if operator is None:
+                operator = get_atom_value(node)
+            else:
+                print(">" + operator + " " + get_atom_value(node))
+                operator = None
 
     if func_type is not None:
         emit_pop(parameters_size(func_type))
