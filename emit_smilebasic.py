@@ -2,10 +2,10 @@ import sys
 
 
 def emit_i32_load8_u(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS] AND 256)")
+    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
 
 def emit_i32_load8_s(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS] AND 256)")
+    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
 
 
 def emit_i32_get(data):
