@@ -171,14 +171,6 @@ def parse_function_declaration(type_def):
 exports = dict()
 declared_func_types = dict()
 
-def emit_pop(size):
-    print( "POP " + str(size) )
-
-def emit_pop_pc():
-    print("_PC = stack_top()")
-    print("POP 4")
-    print("goto _PC")
-
 def parameters_size( functype ):
     total = 0
 
@@ -193,12 +185,12 @@ def do_nothing_for_now():
 def parse(instruction):
 
     if instruction[0] in instruction_emitters:
-        sys.stdout.write("REM ")
-
-        for operand in instruction:
-            sys.stdout.write(operand + " ")
-
-        print()
+    #     sys.stdout.write("REM ")
+    #
+    #     for operand in instruction:
+    #         sys.stdout.write(operand + " ")
+    #
+    #     print()
 
         instruction_emitters[instruction[0]](instruction)
 
@@ -223,7 +215,9 @@ def generate_function(func_node):
     if not function_has_parameters(func_node):
         emit_empty_param_list()
 
+    index = 0
     for node in func_node:
+        index = index + 1
         if is_list(node) and len(node) > 0:
             if get_atom_value(node[0]) == "param":
                 if func_type is None:
@@ -295,8 +289,8 @@ def print_list(nodes, path):
     if path == "/module/func":
         func_def = get_atom_value( nodes[1] )
 
-        if func_def in exports:
-            print("function definition:" + exports[func_def])
+#        if func_def in exports:
+#            print("function definition:" + exports[func_def])
 
         generate_function( nodes )
         return
@@ -315,12 +309,12 @@ def print_list(nodes, path):
                 newPath = path + "/" + get_atom_value(node[0])
 
                 print_list(node, newPath)
-            else:
-                print(path + "/" + get_atom_value(node))
+ #           else:
+#                print(path + "/" + get_atom_value(node))
 
 with open('simplest.dis', 'r') as myfile:
     data = myfile.read()
     sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
     emit_memory()
     print_list(sexp, "/" + get_atom_value(sexp[0]))
-    print("MEMORY[0] = 1\nMEMORY[1] = 5\nCALL F_MAIN(1, 0)")
+    print("MEMORY[0] = 1\nMEMORY[1] = 5\nPRINT F_main(1, 0)")
