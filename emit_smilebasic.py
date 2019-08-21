@@ -9,35 +9,35 @@ def emit_i32_load8_s(data):
 
 
 def emit_i32_get(data):
-    print()
+    print("STACK[TOP + 1] = L" + data[1] + "\nINC TOP")
 
 
 def emit_func(data):
-    sys.stdout.write("DEF F_" + data[1].replace("$", ""))
+    sys.stdout.write("REM---------------\nDEF F_" + data[1].replace("$", ""))
 
 
 def emit_local_get(data):
-    print("STACK[TOP + 1] = L" + data[1] + "\nTOP = TOP + 1")
+    print("STACK[TOP + 1] = L" + data[1] + "\nINC TOP")
 
 
 def emit_i32_const(data):
-    print()
+    print("STACK[TOP + 1] = " + data[1] + "\nINC TOP")
 
 
 def emit_i64_const(data):
-    print()
+    print("STACK[TOP + 1] = " + data[1] + "\nINC TOP")
 
 
 def emit_i32_add(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = AX + BX\nTOP = TOP - 1")
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = AX + BX\nDEC TOP")
 
 
 def emit_global_get(data):
-    print()
+    print("STACK[TOP + 1] = G" + data[1] + "\nINC TOP")
 
 
 def emit_i32_sub(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX - BX)\nDEC TOP")
 
 
 def emit_block(data):
@@ -45,19 +45,19 @@ def emit_block(data):
 
 
 def emit_end(data):
-    print()
+    print("ENDIF")
 
 
 def emit_i32_le_u(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX <= BX)\nDEC TOP")
 
 
 def emit_i32_gt_u(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX > BX)\nDEC TOP")
 
 
 def emit_i32_ge_u(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX >= BX)\nDEC TOP")
 
 
 def emit_i32_load(data):
@@ -65,15 +65,15 @@ def emit_i32_load(data):
 
 
 def emit_i64_load(data):
-    print()
+    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS]")
 
 
 def emit_i32_and(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX AND BX)\nDEC TOP")
 
 
 def emit_i32_lt_u(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX < BX)\nDEC TOP")
 
 
 def emit_i32_shr_u(data):
@@ -93,23 +93,23 @@ def emit_align(data):
 
 
 def emit_i32_xor(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX XOR BX)\nDEC TOP")
 
 
 def emit_i32_eq(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX == BX)\nDEC TOP")
 
 
 def emit_i32_eqz(data):
-    print()
+    print("STACK[TOP] = ( STACK[TOP] == 0 )")
 
 
 def emit_i32_ne(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX != BX)\nDEC TOP")
 
 
 def emit_i32_or(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX OR BX)\nDEC TOP")
 
 
 def emit_i32_rotl(data):
@@ -117,51 +117,51 @@ def emit_i32_rotl(data):
 
 
 def emit_i32_store(data):
-    print()
+    print("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
 
 
 def emit_i64_store(data):
-    print()
+    print("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
 
 
 def emit_select(data):
-    print()
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nIF (STACK[TOP - 2] != 0) THEN\nSTACK[TOP - 2] = AX\nELSE\nSTACK[TOP - 2] = BX\nENDIF\nTOP = TOP - 2")
 
 
 def emit_if(data):
-    print()
+    print("IF (STACK[TOP] == 0) THEN")
 
 
 def emit_else(data):
-    print()
+    print("ELSE")
 
 
 def emit_loop(data):
-    print()
+    print("WHILE (TRUE)")
 
 
 def emit_drop(data):
-    print()
+    print("DEC TOP")
 
 
 def emit_return(data):
-    print()
+    print("RETURN")
 
 
 def emit_memory_grow(data):
-    print()
+    print("REM MEMORY GROW NOT SUPPORTED")
 
 
 def emit_unreachable(data):
-    print()
+    print('PRINT "UNREACHABLE REACHED!!"\n END')
 
 
 def emit_local_tee(data):
-    print()
+    print("L" + data[1] + " = STACK[TOP]")
 
 
 def emit_local_set(data):
-    print()
+    print("L" + data[1] + " = STACK[TOP]\nDEC TOP" )
 
 
 def emit_br(data):
@@ -169,7 +169,7 @@ def emit_br(data):
 
 
 def emit_call(data):
-    print()
+    print("F_" + data[1].replace("$", "") + "()")
 
 
 def emit_br_if(data):
@@ -177,7 +177,7 @@ def emit_br_if(data):
 
 
 def emit_global_set(data):
-    print()
+    print("G" + data[1] + " = STACK[TOP]\nDEC TOP")
 
 def emit_end_function(data, func_type ):
     if func_type is not None and func_type.returnType is not None:
@@ -188,7 +188,7 @@ def emit_memory():
     print("DIM MEMORY[1024 * 64]\nDIM MEMORY_ADDRESS")
 
 def emit_empty_param_list():
-    print("()\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX")
+    print("()\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX\nDIM PC")
 
 def emit_parameter_list(params_without_param_token):
     sys.stdout.write("(")
