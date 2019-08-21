@@ -17,7 +17,7 @@ def emit_func(data):
 
 
 def emit_local_get(data):
-    print("STACK[TOP] = L" + data[1] + "\nTOP = TOP + 1")
+    print("STACK[TOP + 1] = L" + data[1] + "\nTOP = TOP + 1")
 
 
 def emit_i32_const(data):
@@ -29,7 +29,7 @@ def emit_i64_const(data):
 
 
 def emit_i32_add(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP]\nSTACK[TOP] = AX + BX\nTOP = TOP - 1")
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = AX + BX\nTOP = TOP - 1")
 
 
 def emit_global_get(data):
@@ -181,7 +181,7 @@ def emit_global_set(data):
 
 def emit_end_function(data, func_type ):
     if func_type is not None and func_type.returnType is not None:
-        print("TOP = TOP - 1\nRETURN STACK[TOP + 1]")
+        print("RETURN STACK[TOP]")
     print("END")
 
 def emit_memory():
