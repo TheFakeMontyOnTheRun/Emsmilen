@@ -317,4 +317,4 @@ with open('simplest.dis', 'r') as myfile:
     sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
     emit_memory()
     print_list(sexp, "/" + get_atom_value(sexp[0]))
-    print("MEMORY[0] = 1\nMEMORY[1] = 5\nPRINT F_main(1, 0)")
+    print("MEMORY[0] = 1\nMEMORY[1] = 5")
