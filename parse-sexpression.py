@@ -153,6 +153,27 @@ def parse_parameter_declaration(param_declaration):
 
     return param_list
 
+def parse_parameter_definition(param_definition):
+    param_list = []
+
+    label_pos = -1
+    index = 0
+
+    for node in param_definition:
+        possible_pos = get_atom_value(node).find("$")
+
+        if possible_pos != -1:
+            label_pos = index
+
+        index = index + 1
+
+
+    if label_pos != -1:
+        return get_atom_value(param_definition[label_pos])
+    else:
+        print("Something is very wrong with parameter definition")
+        exit(-1)
+
 def parse_function_declaration(type_def):
 
     func = FunctionType()
@@ -205,25 +226,29 @@ def generate_function(func_node):
     func_type = None
     buffered_nodes = []
     pending_operands = 0
-
-    emit_func(["func", get_atom_value( func_node[1] )])
+    func_name = get_atom_value( func_node[1] )
+    emit_func(["func", func_name ])
 
     if not function_has_parameters(func_node):
         emit_empty_param_list()
+    else:
+        emit_parameter_list_start()
 
     index = 0
     for node in func_node:
         index = index + 1
         if is_list(node) and len(node) > 0:
+
             if get_atom_value(node[0]) == "param":
-                if func_type is None:
-                    func_type = FunctionType()
 
-                func_type.parameters = parse_parameter_declaration(node)
-
-                emit_parameter_list(func_type.parameters)
+                current_name = "L" + parse_parameter_definition(node)
+                emit_parameter_definition(current_name)
 
             elif get_atom_value(node[0]) == "result":
+
+                if function_has_parameters(func_node):
+                    emit_parameter_list_end()
+
                 if func_type is None:
                     func_type = FunctionType()
 
@@ -234,6 +259,8 @@ def generate_function(func_node):
 
                 if func_index in declared_func_types:
                     func_type = declared_func_types[func_index]
+
+                function_types[ func_name ] = func_type
 
             elif get_atom_value(node[0]) == "local":
                 node_index = 0
@@ -293,7 +320,7 @@ def print_list(nodes, path):
 
     if path == "/module/type" and get_atom_value( nodes[2][0] ) == "func":
         declared_func_types[get_atom_value(nodes[1])] = parse_function_declaration(nodes[2])
-        return;
+        return
 
 
     for node in nodes:
@@ -308,7 +335,7 @@ def print_list(nodes, path):
  #           else:
 #                print(path + "/" + get_atom_value(node))
 
-with open('simplest.dis', 'r') as myfile:
+with open('simple.dis', 'r') as myfile:
     data = myfile.read()
     sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
     emit_memory()
