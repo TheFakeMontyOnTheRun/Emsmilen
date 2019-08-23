@@ -167,10 +167,6 @@ def parse_function_declaration(type_def):
 
     return func
 
-
-exports = dict()
-declared_func_types = dict()
-
 def parameters_size( functype ):
     total = 0
 
