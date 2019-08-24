@@ -191,7 +191,7 @@ def emit_local_set(data):
 
 
 def emit_br(data):
-    print()
+    print("GOTO @END_" + filter_label_name(data[1]))
 
 def emit_local_declaration(data):
     print("DIM L" + filter_var_name(data))
