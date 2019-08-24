@@ -388,6 +388,13 @@ with open('simple.dis', 'r') as myfile:
     if "puts" in imports.values():
         emit_puts()
 
+    if "strlen" in imports.values():
+        emit_strlen()
+
+    if "putchar" in imports.values():
+        emit_putchar()
+
+
     print("MEMORY[0] = 1\nMEMORY[1] = 5")
 
     if "main" in exports.values():

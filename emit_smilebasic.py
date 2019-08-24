@@ -272,3 +272,23 @@ def emit_puts():
     print("WEND")
     print("PRINT '' ")
     emit_end_function(None, None)
+
+def emit_strlen():
+    sys.stdout.write("REM---------------\nDEF " + filter_func_name("strlen"))
+    emit_parameter_list_start()
+    sys.stdout.write("PTR, ")
+    emit_parameter_list_end()
+    print("DIM OFFSET = 0")
+    print("WHILE (MEMORY[PTR + OFFSET] != 0)")
+    print("INC OFFSET")
+    print("WEND")
+    print("RETURN OFFSET ")
+    emit_end_function(None, None)
+
+def emit_putchar():
+    sys.stdout.write("REM---------------\nDEF " + filter_func_name("putchar"))
+    emit_parameter_list_start()
+    sys.stdout.write("CHAR, ")
+    emit_parameter_list_end()
+    print("PRINT CHR$(CHAR);")
+    emit_end_function(None, None)
