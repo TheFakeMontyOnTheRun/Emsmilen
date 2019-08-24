@@ -1,4 +1,4 @@
-__attribute__ ((optnone)) int strlen(char* str ) {
+int strlen(char* str ) {
 
   int c = 0;
   int len = 0;
@@ -12,7 +12,7 @@ __attribute__ ((optnone)) int strlen(char* str ) {
   return len;
 }
 
-__attribute__ ((optnone)) int main( int argc, char** argv ) {
+int main( int argc, char** argv ) {
   /*
   int total = 0;
   int c = 0;
