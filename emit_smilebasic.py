@@ -216,6 +216,9 @@ def emit_call(data):
 
     print(" 0 )")  # dummy parameter
 
+    if func_type is not None and func_type.returnType is not None:
+        print("INC TOP")
+        print("STACK[TOP] = DUMMY")
 
 def emit_br_if(data):
     print()
