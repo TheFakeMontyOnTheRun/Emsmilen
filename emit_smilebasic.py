@@ -193,6 +193,8 @@ def emit_local_set(data):
 def emit_br(data):
     print()
 
+def emit_local_declaration(data):
+    print("DIM L" + filter_var_name(data))
 
 def emit_call(data):
 

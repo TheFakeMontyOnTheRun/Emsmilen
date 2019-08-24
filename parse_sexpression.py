@@ -293,15 +293,7 @@ def generate_function(func_node):
                 function_types[ func_name ] = func_type
 
             elif get_atom_value(node[0]) == "local":
-                node_index = 0
-
-                if func_type is not None and func_type.parameters is not None:
-                    node_index = len( func_type.parameters )
-
-                for local in node:
-                    if node_index != 0:
-                        print("DIM L" + str(node_index) )
-                    node_index = node_index + 1
+                emit_local_declaration(get_atom_value(node[1]))
 
             elif get_atom_value(node[0]).startswith(";"):
                 continue
