@@ -49,6 +49,7 @@ operands_per_instructions = {
     "call": 1,
     "br_if": 1,
     "global.set" : 1,
+    "get_local": 1
 }
 
 instruction_emitters = {
@@ -56,6 +57,7 @@ instruction_emitters = {
     "i32.load8_s" : emit_i32_load8_s,
     "i32.get" : emit_i32_get,
     "local.get" : emit_local_get,
+    "get_local" : emit_local_get,
     "i32.const" : emit_i32_const,
     "i64.const" : emit_i64_const,
     "i32.add" : emit_i32_add,
