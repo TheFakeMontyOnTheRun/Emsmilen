@@ -3,6 +3,8 @@ import sys
 
 from emit_smilebasic import *
 
+block_stack = []
+
 operands_per_instructions = {
     "i32.load8_s": 0,
     "i32.load8_u" : 0,
@@ -13,9 +15,9 @@ operands_per_instructions = {
     "i32.add" : 0,
     "global.get" : 1,
     "i32.sub" : 0,
-    "block" : 0,
+    "block" : 1,
     "func" : 1,
-    "end" : 0,
+    "end" : 1,
     "i32.le_u" : 0,
     "i32.gt_u": 0,
     "i32.ge_u": 0,
@@ -38,7 +40,7 @@ operands_per_instructions = {
     "select": 0,
     "if" : 0,
     "else" : 0,
-    "loop" : 0,
+    "loop" : 1,
     "drop" : 0,
     "return" : 0,
     "memory.grow" : 0,
@@ -313,6 +315,12 @@ def generate_function(func_node):
 
 
             if pending_operands == 0:
+
+                if buffered_nodes[0] == "block":
+                    block_stack.append( buffered_nodes[1] )
+                elif buffered_nodes[0] == "block":
+                    block_stack.pop()
+
                 parse(buffered_nodes)
                 buffered_nodes = []
 

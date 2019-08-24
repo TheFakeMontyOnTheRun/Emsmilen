@@ -15,6 +15,9 @@ def filter_func_name(func_name):
     return "F_" + func_name.replace("$", "")
 
 
+def filter_label_name(func_name):
+    return "L_" + func_name.replace("$", "")
+
 def emit_parameter_list_start():
     sys.stdout.write("(")
 
@@ -64,11 +67,11 @@ def emit_i32_sub(data):
 
 
 def emit_block(data):
-    print()
+    print("@BLOCK_" + filter_label_name(data[1]) + ":")
 
 
 def emit_end(data):
-    print("ENDIF")
+    print("GOTO @BLOCK_" + filter_label_name(data[1]) + "\n@END_"+ filter_label_name(data[1]) + ":")
 
 
 def emit_i32_le_u(data):
@@ -160,7 +163,7 @@ def emit_else(data):
 
 
 def emit_loop(data):
-    print("WHILE (TRUE)")
+    print("@BLOCK_" + filter_label_name(data[1]))
 
 
 def emit_drop(data):
@@ -215,13 +218,12 @@ def emit_call(data):
             new_top = new_top + 1
 
     print(" 0 )")  # dummy parameter
-
     if func_type is not None and func_type.returnType is not None:
         print("INC TOP")
         print("STACK[TOP] = DUMMY")
 
 def emit_br_if(data):
-    print()
+    print("DEC TOP\nIF (STACK[TOP + 1] == 0) THEN GOTO @END_" + filter_label_name(data[1]))
 
 
 def emit_global_set(data):
