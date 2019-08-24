@@ -237,16 +237,3 @@ def emit_empty_param_list():
 
 def emit_parameter_definition(name):
     sys.stdout.write(filter_var_name(name) + ", ")
-
-def emit_parameter_list(params_without_param_token):
-    sys.stdout.write("(")
-    index = 0
-
-    for param in params_without_param_token:
-        sys.stdout.write("L" + filter_var_name(str(index)) )
-        index = index + 1
-
-        if index < len(params_without_param_token):
-            sys.stdout.write(", ")
-        else:
-            print(")\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX\nDIM DUMMY\nDIM PC")
