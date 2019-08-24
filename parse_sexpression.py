@@ -156,7 +156,6 @@ def parse_parameter_declaration(param_declaration):
     return param_list
 
 def parse_parameter_definition(param_definition):
-    param_list = []
 
     label_pos = -1
     index = 0
