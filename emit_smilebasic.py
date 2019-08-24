@@ -1,12 +1,18 @@
 import sys
 
 exports = dict()
+
+imports = dict()
+
 declared_func_types = dict()
 function_types = dict()
 
 
 def filter_var_name(var_name):
     return var_name.replace('$', 'VAR_')
+
+def filter_func_name(func_name):
+    return "F_" + func_name.replace("$", "")
 
 
 def emit_parameter_list_start():
@@ -30,7 +36,7 @@ def emit_i32_get(data):
 
 
 def emit_func(data):
-    sys.stdout.write("REM---------------\nDEF F_" + data[1].replace("$", ""))
+    sys.stdout.write("REM---------------\nDEF " + filter_func_name(data[1]))
 
 
 def emit_local_get(data):
@@ -186,10 +192,11 @@ def emit_br(data):
 
 
 def emit_call(data):
-    func_name = data[1]
 
-    if func_name.isdigit():
-        func_name = "_" + func_name + "_"
+    if data[1] in imports:
+        func_name = imports[data[1]]
+    else:
+        func_name = data[1]
 
     func_type = None
 
@@ -199,7 +206,7 @@ def emit_call(data):
     if func_type is not None:
         print("TOP = TOP - " + str(len(func_type.parameters)))
 
-    sys.stdout.write("DUMMY = F_" + data[1].replace("$", "") + "(")
+    sys.stdout.write("DUMMY = " + filter_func_name(func_name) + "(")
     new_top = 0
 
     if func_type is not None:
