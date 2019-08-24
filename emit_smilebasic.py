@@ -1,21 +1,25 @@
 import sys
 
-
 exports = dict()
 declared_func_types = dict()
 function_types = dict()
 
+
 def filter_var_name(var_name):
     return var_name.replace('$', 'VAR_')
+
 
 def emit_parameter_list_start():
     sys.stdout.write("(")
 
+
 def emit_parameter_list_end():
     print("DUMMY_PAR )\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX\nDIM DUMMY\nDIM PC")
 
+
 def emit_i32_load8_u(data):
     print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
+
 
 def emit_i32_load8_s(data):
     print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
@@ -174,7 +178,7 @@ def emit_local_tee(data):
 
 
 def emit_local_set(data):
-    print("L" + data[1] + " = STACK[TOP]\nDEC TOP" )
+    print("L" + data[1] + " = STACK[TOP]\nDEC TOP")
 
 
 def emit_br(data):
@@ -182,7 +186,6 @@ def emit_br(data):
 
 
 def emit_call(data):
-
     func_name = data[1]
 
     if func_name.isdigit():
@@ -201,11 +204,10 @@ def emit_call(data):
 
     if func_type is not None:
         for unused in func_type.parameters:
-            sys.stdout.write("STACK[ TOP + " +  str(new_top + 1) + "], ")
+            sys.stdout.write("STACK[ TOP + " + str(new_top + 1) + "], ")
             new_top = new_top + 1
 
-    print(" 0 )") #dummy parameter
-
+    print(" 0 )")  # dummy parameter
 
 
 def emit_br_if(data):
@@ -215,15 +217,18 @@ def emit_br_if(data):
 def emit_global_set(data):
     print("G" + data[1] + " = STACK[TOP]\nDEC TOP")
 
-def emit_end_function(data, func_type ):
+
+def emit_end_function(data, func_type):
     if func_type is not None and func_type.returnType is not None:
         print("RETURN STACK[TOP]")
     else:
         print("RETURN 0")
     print("END")
 
+
 def emit_memory():
     print("DIM MEMORY[1024 * 64]\nDIM MEMORY_ADDRESS")
+
 
 def emit_empty_param_list():
     emit_parameter_list_start()
