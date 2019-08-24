@@ -226,7 +226,8 @@ def emit_memory():
     print("DIM MEMORY[1024 * 64]\nDIM MEMORY_ADDRESS")
 
 def emit_empty_param_list():
-    print("()\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX\nDIM DUMMY\nDIM PC")
+    emit_parameter_list_start()
+    emit_parameter_list_end()
 
 
 def emit_parameter_definition(name):
