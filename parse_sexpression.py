@@ -316,7 +316,7 @@ def generate_function(func_node):
 def print_list(nodes, path):
 
     if path == "/module/export":
-        exports[ get_atom_value( nodes[2][1] ) ] = get_atom_value( nodes[1] )
+        exports[ get_atom_value( nodes[2] ) ] = get_atom_value( nodes[1] )
 
 
     if path == "/module/func":
