@@ -243,4 +243,14 @@ def emit_empty_param_list():
 
 
 def emit_parameter_definition(name):
-    sys.stdout.write(filter_var_name(name) + ", ")
+    sys.stdout.write(filter_var_name(name) + ", ")def emit_string_at_address(starting_address, null_terminated_string):
+
+def emit_string_at_address(starting_address, null_terminated_string):
+    offset = 0
+    for ascii_letter in null_terminated_string:
+        if ascii_letter is "\\" and null_terminated_string[ offset + 1 ] == '0':
+            print("MEMORY[" + str(starting_address + offset) + "] = 0")
+            return
+        else:
+            print("MEMORY[" + str(starting_address + offset) + "] = " + str(ord(ascii_letter)) )
+        offset += 1

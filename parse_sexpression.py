@@ -323,6 +323,10 @@ def print_list(nodes, path):
         imports[ get_atom_value( nodes[1] ) ] = exported_func_name
         function_types[ exported_func_name ] = parse_function_declaration(nodes)
 
+    if path == "/module/data":
+        starting_address = get_atom_value( nodes[1][1] )
+        emit_string_at_address( int(starting_address), nodes[2])
+
     if path == "/module/func":
         func_def = get_atom_value( nodes[1] )
 
