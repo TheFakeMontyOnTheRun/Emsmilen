@@ -243,7 +243,7 @@ def emit_empty_param_list():
 
 
 def emit_parameter_definition(name):
-    sys.stdout.write(filter_var_name(name) + ", ")def emit_string_at_address(starting_address, null_terminated_string):
+    sys.stdout.write(filter_var_name(name) + ", ")
 
 def emit_string_at_address(starting_address, null_terminated_string):
     offset = 0
@@ -254,3 +254,16 @@ def emit_string_at_address(starting_address, null_terminated_string):
         else:
             print("MEMORY[" + str(starting_address + offset) + "] = " + str(ord(ascii_letter)) )
         offset += 1
+
+def emit_puts():
+    sys.stdout.write("REM---------------\nDEF " + filter_func_name("puts"))
+    emit_parameter_list_start()
+    sys.stdout.write("PTR, ")
+    emit_parameter_list_end()
+    print("DIM OFFSET = 0")
+    print("WHILE (MEMORY[PTR + OFFSET] != 0)")
+    print("PRINT CHR$(MEMORY[PTR + OFFSET]);")
+    print("INC OFFSET")
+    print("WEND")
+    print("PRINT '' ")
+    emit_end_function(None, None)

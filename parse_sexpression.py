@@ -315,8 +315,8 @@ def generate_function(func_node):
 
 def print_list(nodes, path):
 
-    if path == "/module/export":
-        exports[ get_atom_value( nodes[2] ) ] = get_atom_value( nodes[1] )
+    if path == "/module/export" :
+        exports[ get_atom_value( get_atom_value(nodes[2]) ) ] = get_atom_value( nodes[1] )
 
     if path == "/module/import":
         exported_func_name = get_atom_value( nodes[3] )
@@ -358,4 +358,8 @@ with open('simple.dis', 'r') as myfile:
     sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
     emit_memory()
     print_list(sexp, "/" + get_atom_value(sexp[0]))
+
+    if "puts" in imports.values():
+        emit_puts()
+
     print("MEMORY[0] = 1\nMEMORY[1] = 5")
