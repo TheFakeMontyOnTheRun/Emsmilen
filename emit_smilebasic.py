@@ -171,7 +171,7 @@ def emit_drop(data):
 
 
 def emit_return(data):
-    print("RETURN")
+    print("RETURN 0")
 
 
 def emit_memory_grow(data):
