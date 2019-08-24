@@ -175,6 +175,25 @@ def parse_parameter_definition(param_definition):
         print("Something is very wrong with parameter definition")
         exit(-1)
 
+
+def parse_parameters_definition(func_node):
+
+    if not function_has_parameters(func_node):
+        emit_empty_param_list()
+        return
+
+
+    emit_parameter_list_start()
+
+    for node in func_node:
+        if is_list(node) and len(node) > 0:
+            if get_atom_value(node[0]) == "param":
+                current_name = "L" + parse_parameter_definition(node)
+                emit_parameter_definition(current_name)
+
+
+    emit_parameter_list_end()
+
 def parse_function_declaration(type_def):
 
     func = FunctionType()
@@ -230,25 +249,15 @@ def generate_function(func_node):
     func_name = get_atom_value( func_node[1] )
     emit_func(["func", func_name ])
 
-    if not function_has_parameters(func_node):
-        emit_empty_param_list()
-    else:
-        emit_parameter_list_start()
+    parse_parameters_definition(func_node)
 
     index = 0
     for node in func_node:
         index = index + 1
         if is_list(node) and len(node) > 0:
-
             if get_atom_value(node[0]) == "param":
-
-                current_name = "L" + parse_parameter_definition(node)
-                emit_parameter_definition(current_name)
-
+                continue
             elif get_atom_value(node[0]) == "result":
-
-                if function_has_parameters(func_node):
-                    emit_parameter_list_end()
 
                 if func_type is None:
                     func_type = FunctionType()
