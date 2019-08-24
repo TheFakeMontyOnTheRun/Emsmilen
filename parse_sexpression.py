@@ -150,7 +150,11 @@ def parse_parameter_declaration(param_declaration):
 
     for node in param_declaration:
         if param_declaration.index(node) != 0:
-            param_list.append(get_atom_value(node))
+            if is_list(node):
+                for type_name in node:
+                    param_list.append(get_atom_value(type_name))
+            else:
+                param_list.append(get_atom_value(node))
 
 
     return param_list
@@ -250,6 +254,8 @@ def generate_function(func_node):
     emit_func(["func", func_name ])
 
     parse_parameters_definition(func_node)
+
+    function_types[func_name] = parse_function_declaration(func_node)
 
     index = 0
     for node in func_node:
