@@ -102,7 +102,7 @@ def emit_i32_shl(data):
 
 
 def emit_offset(data):
-    print()
+    print("REM OFFSET=" + data[1])
 
 
 def emit_align(data):
