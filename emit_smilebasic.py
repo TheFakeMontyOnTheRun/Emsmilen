@@ -180,11 +180,11 @@ def emit_unreachable(data):
 
 
 def emit_local_tee(data):
-    print("L" + data[1] + " = STACK[TOP]")
+    print("L" + filter_var_name(data[1]) + " = STACK[TOP]")
 
 
 def emit_local_set(data):
-    print("L" + data[1] + " = STACK[TOP]\nDEC TOP")
+    print("L" + filter_var_name(data[1]) + " = STACK[TOP]\nDEC TOP")
 
 
 def emit_br(data):
