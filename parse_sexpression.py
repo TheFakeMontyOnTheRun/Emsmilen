@@ -387,3 +387,7 @@ with open('simple.dis', 'r') as myfile:
         emit_puts()
 
     print("MEMORY[0] = 1\nMEMORY[1] = 5")
+
+    if "main" in exports.values():
+        ivd = {v: k for k, v in exports.items()}
+        print("PRINT " + filter_func_name(ivd["main"]) + "( 1, 0, 0 )")
