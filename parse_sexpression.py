@@ -171,7 +171,7 @@ def parse_parameter_declaration(param_declaration):
                 for type_name in node:
                     if type_name[0] == "$":
                         param_list.append(get_atom_value(type_name))
-            elif get_atom_value(node)[0] == "$":
+            elif get_atom_value(node)[0] != "$":
                 param_list.append(get_atom_value(node))
 
     return param_list
