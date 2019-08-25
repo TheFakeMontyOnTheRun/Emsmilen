@@ -3,29 +3,28 @@ import sys
 
 from emit_smilebasic import *
 
-
 operands_per_instructions = {
     "i32.load8_s": 0,
-    "i32.load8_u" : 0,
-    "i32.get" : 1,
-    "local.get" : 1,
-    "i32.const" : 1,
-    "i64.const" : 1,
-    "i32.add" : 0,
-    "global.get" : 1,
-    "i32.sub" : 0,
-    "block" : 1,
-    "i32.le_s" : 0,
-    "func" : 1,
-    "end" : 1,
-    "f64.const" : 1,
-    "i32.le_u" : 0,
+    "i32.load8_u": 0,
+    "i32.get": 1,
+    "local.get": 1,
+    "i32.const": 1,
+    "i64.const": 1,
+    "i32.add": 0,
+    "global.get": 1,
+    "i32.sub": 0,
+    "block": 1,
+    "i32.le_s": 0,
+    "func": 1,
+    "end": 1,
+    "f64.const": 1,
+    "i32.le_u": 0,
     "i32.gt_u": 0,
     "i32.gt_s": 0,
     "i32.ge_u": 0,
-    "i32.load" : 0,
-    "i64.load" : 0,
-    "i32.and" : 0,
+    "i32.load": 0,
+    "i64.load": 0,
+    "i32.and": 0,
     "i32.lt_u": 0,
     "i32.lt_s": 0,
     "i32.shr_u": 0,
@@ -41,46 +40,46 @@ operands_per_instructions = {
     "i32.store": 0,
     "i64.store": 0,
     "select": 0,
-    "if" : 0,
-    "else" : 0,
-    "loop" : 1,
-    "drop" : 0,
-    "return" : 0,
-    "memory.grow" : 0,
-    "unreachable" : 0,
-    "local.tee" : 1,
-    "tee_local" : 1,
-    "local.set" : 1,
-    "set_local" : 1,
+    "if": 0,
+    "else": 0,
+    "loop": 1,
+    "drop": 0,
+    "return": 0,
+    "memory.grow": 0,
+    "unreachable": 0,
+    "local.tee": 1,
+    "tee_local": 1,
+    "local.set": 1,
+    "set_local": 1,
     "br": 1,
     "call": 1,
     "br_if": 1,
-    "global.set" : 1,
+    "global.set": 1,
     "get_local": 1
 }
 
 instruction_emitters = {
-    "i32.load8_u" : emit_i32_load8_u,
-    "i32.load8_s" : emit_i32_load8_s,
-    "i32.get" : emit_i32_get,
-    "local.get" : emit_local_get,
-    "get_local" : emit_local_get,
-    "i32.const" : emit_i32_const,
-    "i64.const" : emit_i64_const,
-    "f64.const" : emit_i64_const,
-    "i32.add" : emit_i32_add,
-    "global.get" : emit_global_get,
-    "i32.sub" : emit_i32_sub,
-    "block" : emit_block,
-    "i32.le_s" : emit_i32_le_u,
-    "end" : emit_end,
-    "i32.le_u" : emit_i32_le_u,
+    "i32.load8_u": emit_i32_load8_u,
+    "i32.load8_s": emit_i32_load8_s,
+    "i32.get": emit_i32_get,
+    "local.get": emit_local_get,
+    "get_local": emit_local_get,
+    "i32.const": emit_i32_const,
+    "i64.const": emit_i64_const,
+    "f64.const": emit_i64_const,
+    "i32.add": emit_i32_add,
+    "global.get": emit_global_get,
+    "i32.sub": emit_i32_sub,
+    "block": emit_block,
+    "i32.le_s": emit_i32_le_u,
+    "end": emit_end,
+    "i32.le_u": emit_i32_le_u,
     "i32.gt_u": emit_i32_gt_u,
     "i32.gt_s": emit_i32_gt_u,
     "i32.ge_u": emit_i32_ge_u,
-    "i32.load" : emit_i32_load,
-    "i64.load" : emit_i64_load,
-    "i32.and" : emit_i32_and,
+    "i32.load": emit_i32_load,
+    "i64.load": emit_i64_load,
+    "i32.and": emit_i32_and,
     "i32.lt_u": emit_i32_lt_u,
     "i32.lt_s": emit_i32_lt_u,
     "i32.shr_u": emit_i32_shr_u,
@@ -96,34 +95,38 @@ instruction_emitters = {
     "i32.store": emit_i32_store,
     "i64.store": emit_i64_store,
     "select": emit_select,
-    "if" : emit_if,
-    "else" : emit_else,
-    "loop" : emit_loop,
-    "drop" : emit_drop,
-    "return" : emit_return,
-    "memory.grow" : emit_memory_grow,
-    "unreachable" : emit_unreachable,
-    "local.tee" : emit_local_tee,
+    "if": emit_if,
+    "else": emit_else,
+    "loop": emit_loop,
+    "drop": emit_drop,
+    "return": emit_return,
+    "memory.grow": emit_memory_grow,
+    "unreachable": emit_unreachable,
+    "local.tee": emit_local_tee,
     "tee_local": emit_local_tee,
-    "local.set" : emit_local_set,
+    "local.set": emit_local_set,
     "set_local": emit_local_set,
     "br": emit_br,
     "call": emit_call,
     "br_if": emit_br_if,
-    "global.set" : emit_global_set,
+    "global.set": emit_global_set,
 }
+
 
 class ValueTypeDefinition:
     name = None
     TypeName = None
 
+
 class FunctionType:
     parameters = []
     returnType = None
 
+
 class Function:
     name = ""
     functionType = None
+
 
 def is_list(possible_list):
     att = dir(possible_list)
@@ -136,6 +139,7 @@ def is_list(possible_list):
             return True
 
     return False
+
 
 def get_atom_value(node):
     if isinstance(node, str):
@@ -151,12 +155,12 @@ def get_atom_value(node):
 
 
 def parse_result_declaration(param_declaration):
-
     for node in param_declaration:
         if param_declaration.index(node) != 0:
             return get_atom_value(node)
 
     return None
+
 
 def parse_parameter_declaration(param_declaration):
     param_list = []
@@ -174,11 +178,9 @@ def parse_parameter_declaration(param_declaration):
 
 
 def parse_parameters_definition(func_node):
-
     if not function_has_parameters(func_node):
         emit_empty_param_list()
         return
-
 
     emit_parameter_list_start()
 
@@ -192,8 +194,8 @@ def parse_parameters_definition(func_node):
 
     emit_parameter_list_end()
 
-def parse_function_declaration(type_def):
 
+def parse_function_declaration(type_def):
     func = FunctionType()
 
     for node in type_def:
@@ -206,7 +208,8 @@ def parse_function_declaration(type_def):
 
     return func
 
-def parameters_size( functype ):
+
+def parameters_size(functype):
     total = 0
 
     for param in functype.parameters:
@@ -214,19 +217,31 @@ def parameters_size( functype ):
 
     return total
 
+
 def do_nothing_for_now():
     bla = 0
 
+
+def emit_diagnostics():
+    print("PRINT \"**\";")
+    print("PRINT \"TOP:\";")
+    print("PRINT TOP;")
+    print("PRINT \" STACK TOP:\";")
+    print("PRINT STACK[TOP]")
+
+
 def parse(instruction):
-
     if instruction[0] in instruction_emitters:
-    #     sys.stdout.write("REM ")
-    #
-    #     for operand in instruction:
-    #         sys.stdout.write(operand + " ")
-    #
-    #     print()
-
+        # print()
+        # print()
+        # sys.stdout.write("PRINT\">")
+        #
+        # for operand in instruction:
+        #     sys.stdout.write(operand + " ")
+        #
+        # print("<\"")
+        # emit_diagnostics()
+        # print()
         instruction_emitters[instruction[0]](instruction)
 
 
@@ -240,12 +255,11 @@ def function_has_parameters(func_node):
 
 
 def generate_function(func_node):
-
     func_type = None
     buffered_nodes = []
     pending_operands = 0
-    func_name = get_atom_value( func_node[1] )
-    emit_func(["func", func_name ])
+    func_name = get_atom_value(func_node[1])
+    emit_func(["func", func_name])
 
     parse_parameters_definition(func_node)
 
@@ -265,12 +279,12 @@ def generate_function(func_node):
                 func_type.returnType = parse_result_declaration(node)
 
             elif get_atom_value(node[0]) == "type":
-                func_index = get_atom_value( node[1] )
+                func_index = get_atom_value(node[1])
 
                 if func_index in declared_func_types:
                     func_type = declared_func_types[func_index]
 
-                function_types[ func_name ] = func_type
+                function_types[func_name] = func_type
 
             elif get_atom_value(node[0]) == "local":
                 emit_local_declaration(get_atom_value(node[1]))
@@ -278,7 +292,7 @@ def generate_function(func_node):
             elif get_atom_value(node[0]).startswith(";"):
                 continue
             else:
-                print( get_atom_value( node ) )
+                print(get_atom_value(node))
         else:
             atom_value = get_atom_value(node)
 
@@ -288,7 +302,7 @@ def generate_function(func_node):
 
             if len(buffered_nodes) == 0:
                 if atom_value not in operands_per_instructions:
-                    print("instruction not handled: " + atom_value )
+                    print("instruction not handled: " + atom_value)
                     exit(-1)
 
                 pending_operands = operands_per_instructions[atom_value]
@@ -297,11 +311,10 @@ def generate_function(func_node):
                 pending_operands = pending_operands - 1
                 buffered_nodes.append(atom_value)
 
-
             if pending_operands == 0:
 
                 if buffered_nodes[0] == "block":
-                    scope_stack.append( [buffered_nodes[0], buffered_nodes[1]] )
+                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
                 elif buffered_nodes[0] == "if":
                     scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
                 elif buffered_nodes[0] == "loop":
@@ -317,46 +330,46 @@ def generate_function(func_node):
 
                 buffered_nodes = []
 
-    emit_end_function(func_node, func_type )
+    emit_end_function(func_node, func_type)
+
 
 def print_list(nodes, path):
-
-    if path == "/module/export" :
-        exports[ get_atom_value( get_atom_value(nodes[2]) ) ] = get_atom_value( nodes[1] )
+    if path == "/module/export":
+        exports[get_atom_value(get_atom_value(nodes[2]))] = get_atom_value(nodes[1])
 
     if path == "/module/import":
-        exported_func_name = get_atom_value( nodes[3] )
-        imports[ get_atom_value( nodes[1] ) ] = exported_func_name
-        function_types[ exported_func_name ] = parse_function_declaration(nodes)
+        exported_func_name = get_atom_value(nodes[3])
+        imports[get_atom_value(nodes[1])] = exported_func_name
+        function_types[exported_func_name] = parse_function_declaration(nodes)
 
     if path == "/module/data":
-        starting_address = get_atom_value( nodes[1][1] )
-        emit_string_at_address( int(starting_address), nodes[2])
+        starting_address = get_atom_value(nodes[1][1])
+        emit_string_at_address(int(starting_address), nodes[2])
 
     if path == "/module/func":
-        func_def = get_atom_value( nodes[1] )
+        func_def = get_atom_value(nodes[1])
 
-#        if func_def in exports:
-#            print("function definition:" + exports[func_def])
+        #        if func_def in exports:
+        #            print("function definition:" + exports[func_def])
 
-        generate_function( nodes )
+        generate_function(nodes)
         return
 
-    if path == "/module/type" and get_atom_value( nodes[2][0] ) == "func":
+    if path == "/module/type" and get_atom_value(nodes[2][0]) == "func":
         declared_func_types[get_atom_value(nodes[1])] = parse_function_declaration(nodes[2])
         return
-
 
     for node in nodes:
 
         if nodes.index(node) != 0:
 
             if is_list(node) and len(node) > 0:
-
                 newPath = path + "/" + get_atom_value(node[0])
 
                 print_list(node, newPath)
- #           else:
+
+
+#           else:
 #                print(path + "/" + get_atom_value(node))
 
 with open('simple.dis', 'r') as myfile:
@@ -373,7 +386,6 @@ with open('simple.dis', 'r') as myfile:
 
     if "putchar" in imports.values():
         emit_putchar()
-
 
     print("MEMORY[0] = 1\nMEMORY[1] = 5")
 
