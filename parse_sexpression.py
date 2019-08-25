@@ -3,7 +3,6 @@ import sys
 
 from emit_smilebasic import *
 
-block_stack = []
 
 operands_per_instructions = {
     "i32.load8_s": 0,
@@ -321,13 +320,21 @@ def generate_function(func_node):
             if pending_operands == 0:
 
                 if buffered_nodes[0] == "block":
-                    block_stack.append( buffered_nodes[1] )
-                elif buffered_nodes[0] == "block":
-                    block_stack.pop()
+                    scope_stack.append( [buffered_nodes[0], buffered_nodes[1]] )
+                elif buffered_nodes[0] == "if":
+                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
+                elif buffered_nodes[0] == "loop":
+                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
+                elif buffered_nodes[0] == "else":
+                    scope_top = scope_stack.pop()
+                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
 
                 parse(buffered_nodes)
-                buffered_nodes = []
 
+                if buffered_nodes[0] == "end":
+                    scope_top = scope_stack.pop()
+
+                buffered_nodes = []
 
     emit_end_function(func_node, func_type )
 

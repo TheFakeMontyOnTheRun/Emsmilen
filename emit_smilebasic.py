@@ -6,7 +6,7 @@ imports = dict()
 
 declared_func_types = dict()
 function_types = dict()
-
+scope_stack = []
 
 def filter_var_name(var_name):
     return var_name.replace('$', 'VAR_')
@@ -71,7 +71,7 @@ def emit_block(data):
 
 
 def emit_end(data):
-    print("GOTO @BLOCK_" + filter_label_name(data[1]) + "\n@END_"+ filter_label_name(data[1]) + ":")
+    print("@END_"+ filter_label_name(data[1]) + ":")
 
 
 def emit_i32_le_u(data):
@@ -189,9 +189,16 @@ def emit_local_tee(data):
 def emit_local_set(data):
     print("L" + filter_var_name(data[1]) + " = STACK[TOP]\nDEC TOP")
 
-
 def emit_br(data):
-    print("GOTO @END_" + filter_label_name(data[1]))
+
+    label_to_jump = "@END_" + filter_label_name(data[1])
+
+    for scope in scope_stack:
+        if scope[1] == data[1] and scope[0] == "loop":
+            label_to_jump = "@BLOCK_" + filter_label_name(data[1])
+
+
+    print("GOTO " + label_to_jump )
 
 def emit_local_declaration(data):
     print("DIM L" + filter_var_name(data))
@@ -225,7 +232,14 @@ def emit_call(data):
         print("STACK[TOP] = DUMMY")
 
 def emit_br_if(data):
-    print("DEC TOP\nIF (STACK[TOP + 1] == 0) THEN GOTO @END_" + filter_label_name(data[1]))
+
+    label_to_jump = "@END_" + filter_label_name(data[1])
+
+    for scope in scope_stack:
+        if scope[1] == data[1] and scope[0] == "loop":
+            label_to_jump = "@BLOCK_" + filter_label_name(data[1])
+
+    print("DEC TOP\nIF (STACK[TOP + 1] == 1) THEN GOTO " + label_to_jump )
 
 
 def emit_global_set(data):
