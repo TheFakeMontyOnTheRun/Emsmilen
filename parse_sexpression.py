@@ -165,32 +165,12 @@ def parse_parameter_declaration(param_declaration):
         if param_declaration.index(node) != 0:
             if is_list(node):
                 for type_name in node:
-                    param_list.append(get_atom_value(type_name))
-            else:
+                    if type_name[0] == "$":
+                        param_list.append(get_atom_value(type_name))
+            elif get_atom_value(node)[0] == "$":
                 param_list.append(get_atom_value(node))
 
-
     return param_list
-
-def parse_parameter_definition(param_definition):
-
-    label_pos = -1
-    index = 0
-
-    for node in param_definition:
-        possible_pos = get_atom_value(node).find("$")
-
-        if possible_pos != -1:
-            label_pos = index
-
-        index = index + 1
-
-
-    if label_pos != -1:
-        return get_atom_value(param_definition[label_pos])
-    else:
-        print("Something is very wrong with parameter definition")
-        exit(-1)
 
 
 def parse_parameters_definition(func_node):
@@ -205,9 +185,10 @@ def parse_parameters_definition(func_node):
     for node in func_node:
         if is_list(node) and len(node) > 0:
             if get_atom_value(node[0]) == "param":
-                current_name = "L" + parse_parameter_definition(node)
-                emit_parameter_definition(current_name)
-
+                for token in node:
+                    atom_value = get_atom_value(token)
+                    if atom_value[0] == "$":
+                        emit_parameter_definition("L" + atom_value)
 
     emit_parameter_list_end()
 
