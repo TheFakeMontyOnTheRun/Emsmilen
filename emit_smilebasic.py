@@ -239,7 +239,7 @@ def emit_br_if(data):
         if scope[1] == data[1] and scope[0] == "loop":
             label_to_jump = "@BLOCK_" + filter_label_name(data[1])
 
-    print("DEC TOP\nIF (STACK[TOP + 1] == 1) THEN GOTO " + label_to_jump )
+    print("DEC TOP\nIF (STACK[TOP + 1] != 0) THEN GOTO " + label_to_jump )
 
 
 def emit_global_set(data):
