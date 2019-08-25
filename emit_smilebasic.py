@@ -75,15 +75,28 @@ def emit_end(data):
 
 
 def emit_i32_le_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX <= BX)\nDEC TOP")
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX >= BX)\nDEC TOP")
 
+def emit_i32_lt_u(data):
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX > BX)\nDEC TOP")
 
 def emit_i32_gt_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX > BX)\nDEC TOP")
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX < BX)\nDEC TOP")
+
+def emit_i32_eq(data):
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX == BX)\nDEC TOP")
+
+
+def emit_i32_eqz(data):
+    print("STACK[TOP] = ( STACK[TOP] == 0 )")
+
+
+def emit_i32_ne(data):
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX != BX)\nDEC TOP")
 
 
 def emit_i32_ge_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX >= BX)\nDEC TOP")
+    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX <= BX)\nDEC TOP")
 
 
 def emit_i32_load(data):
@@ -96,10 +109,6 @@ def emit_i64_load(data):
 
 def emit_i32_and(data):
     print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX AND BX)\nDEC TOP")
-
-
-def emit_i32_lt_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX < BX)\nDEC TOP")
 
 
 def emit_i32_shr_u(data):
@@ -120,18 +129,6 @@ def emit_align(data):
 
 def emit_i32_xor(data):
     print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX XOR BX)\nDEC TOP")
-
-
-def emit_i32_eq(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX == BX)\nDEC TOP")
-
-
-def emit_i32_eqz(data):
-    print("STACK[TOP] = ( STACK[TOP] == 0 )")
-
-
-def emit_i32_ne(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX != BX)\nDEC TOP")
 
 
 def emit_i32_or(data):
