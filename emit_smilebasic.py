@@ -163,7 +163,7 @@ def emit_else(data):
 
 
 def emit_loop(data):
-    print("@BLOCK_" + filter_label_name(data[1]))
+    print("@BLOCK_" + filter_label_name(data[1]) + ":")
 
 
 def emit_drop(data):
