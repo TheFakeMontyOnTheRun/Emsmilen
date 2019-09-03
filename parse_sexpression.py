@@ -16,7 +16,7 @@ operands_per_instructions = {
     "block": 1,
     "i32.le_s": 0,
     "func": 1,
-    "end": 1,
+    "end": 0,
     "f64.const": 1,
     "i32.le_u": 0,
     "i32.gt_u": 0,
