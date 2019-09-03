@@ -352,7 +352,7 @@ def print_list(nodes, path):
             print("REM TABLE INDIRECTIONS NOT SUPPORTED YET")
 
         else:
-            imports[get_atom_value(nodes[1])] = exported_func_name
+            imports["$" + get_atom_value(nodes[1]) + "." + get_atom_value(nodes[2])] = exported_func_name
             function_types[exported_func_name] = declared_func_types[get_atom_value(nodes[3][2][1])]
 
     if path == "/module/data":
