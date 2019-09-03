@@ -255,8 +255,8 @@ def emit_end_function(data, func_type):
     print("END")
 
 
-def emit_memory():
-    print("DIM MEMORY[1024 * 64]\nDIM MEMORY_ADDRESS")
+def emit_memory(pages):
+    print("DIM MEMORY[1024 * 64 * " + str(pages) + "]\nDIM MEMORY_ADDRESS")
 
 
 def emit_empty_param_list():

@@ -344,9 +344,16 @@ def print_list(nodes, path):
         exports[get_atom_value(get_atom_value(nodes[2]))] = get_atom_value(nodes[1])
 
     if path == "/module/import":
-        exported_func_name = get_atom_value(nodes[3])
-        imports[get_atom_value(nodes[1])] = exported_func_name
-        function_types[exported_func_name] = parse_function_declaration(nodes)
+        exported_func_name = get_atom_value(nodes[2])
+        if exported_func_name == "__linear_memory":
+            emit_memory( int(get_atom_value(nodes[3][2])) )
+
+        elif exported_func_name == "__indirect_function_table":
+            print("REM TABLE INDIRECTIONS NOT SUPPORTED YET")
+
+        else:
+            imports[get_atom_value(nodes[1])] = exported_func_name
+            function_types[exported_func_name] = declared_func_types[get_atom_value(nodes[3][2][1])]
 
     if path == "/module/data":
         literal = ""
@@ -386,7 +393,6 @@ def print_list(nodes, path):
 with open('simple.dis', 'r') as myfile:
     data = myfile.read()
     sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
-    emit_memory()
     print_list(sexp, "/" + get_atom_value(sexp[0]))
 
     if "puts" in imports.values():
