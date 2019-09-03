@@ -71,7 +71,11 @@ def emit_block(data):
 
 
 def emit_end(data):
-    print("@END_"+ filter_label_name(data[1]) + ":")
+    if len(data) > 1:
+        print("@END_"+ filter_label_name(data[1]) + ":")
+    else:
+        name = scope_stack[ len(scope_stack) - 1 ][1]
+        print("@END_" + filter_label_name(name) + ":")
 
 
 def emit_i32_le_u(data):
@@ -268,10 +272,12 @@ def emit_string_at_address(starting_address, null_terminated_string):
     for ascii_letter in null_terminated_string:
         if ascii_letter is "\\" and null_terminated_string[ offset + 1 ] == '0':
             print("MEMORY[" + str(starting_address + offset) + "] = 0")
-            return
+            return offset
         else:
             print("MEMORY[" + str(starting_address + offset) + "] = " + str(ord(ascii_letter)) )
         offset += 1
+
+    return offset
 
 def emit_puts():
     sys.stdout.write("REM---------------\nDEF " + filter_func_name("puts"))

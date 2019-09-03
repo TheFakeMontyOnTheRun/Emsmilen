@@ -3,6 +3,8 @@ import sys
 
 from emit_smilebasic import *
 
+end_of_literals = 0
+
 operands_per_instructions = {
     "i32.load8_s": 0,
     "i32.load8_u": 0,
@@ -336,6 +338,8 @@ def generate_function(func_node):
 
 
 def print_list(nodes, path):
+    global end_of_literals
+
     if path == "/module/export":
         exports[get_atom_value(get_atom_value(nodes[2]))] = get_atom_value(nodes[1])
 
@@ -345,8 +349,13 @@ def print_list(nodes, path):
         function_types[exported_func_name] = parse_function_declaration(nodes)
 
     if path == "/module/data":
-        starting_address = get_atom_value(nodes[1][1])
-        emit_string_at_address(int(starting_address), nodes[2])
+        literal = ""
+        for subnode in nodes:
+            if is_list(subnode):
+                starting_address = get_atom_value(subnode[1])
+            if isinstance(subnode, str):
+                literal = subnode
+        end_of_literals = int(starting_address) +  emit_string_at_address(int(starting_address), literal)
 
     if path == "/module/func":
         func_def = get_atom_value(nodes[1])
@@ -389,8 +398,9 @@ with open('simple.dis', 'r') as myfile:
     if "putchar" in imports.values():
         emit_putchar()
 
-    print("MEMORY[0] = 1\nMEMORY[1] = 5")
+    print("MEMORY[" + str(end_of_literals + 1) + "] = 1")
+    emit_string_at_address( end_of_literals + 2, "simple.dis\0")
 
     if "main" in exports.values():
         ivd = {v: k for k, v in exports.items()}
-        print("PRINT " + filter_func_name(ivd["main"]) + "( 1, 0, 0 )")
+        print("PRINT " + filter_func_name(ivd["main"]) + "( 1, " + str (end_of_literals + 2 ) + ", 0 )")
