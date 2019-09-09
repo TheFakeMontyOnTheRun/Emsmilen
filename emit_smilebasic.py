@@ -7,6 +7,7 @@ imports = dict()
 declared_func_types = dict()
 function_types = dict()
 scope_stack = []
+pages_number = 0
 
 def filter_var_name(var_name):
     return var_name.replace('$', 'VAR_')
@@ -189,6 +190,11 @@ def emit_memory_grow(data):
 def emit_unreachable(data):
     print('PRINT "UNREACHABLE REACHED!!"\n END')
 
+def emit_unsupported(data):
+    print('PRINT "UNSUPPORTED OPERATION REACHED!!"\n END')
+
+def emit_current_memory(data):
+    print("STACK[TOP + 1] = " + (pages_number) + "\nINC TOP")
 
 def emit_local_tee(data):
     print("L" + filter_var_name(data[1]) + " = STACK[TOP]")
@@ -263,6 +269,8 @@ def emit_end_function(data, func_type):
 
 
 def emit_memory(pages):
+    global pages_number
+    pages_number = pages
     print("DIM MEMORY[1024 * 64 * " + str(pages) + "]\nDIM MEMORY_ADDRESS")
 
 
