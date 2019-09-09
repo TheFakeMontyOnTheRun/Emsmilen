@@ -33,6 +33,13 @@ def emit_i32_load8_u(data):
 def emit_i32_load8_s(data):
     print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
 
+def emit_i32_load16_u(data):
+    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
+
+
+def emit_i32_load16_s(data):
+    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
+
 
 def emit_i32_get(data):
     print("STACK[TOP + 1] = L" + filter_var_name(data[1]) + "\nINC TOP")
