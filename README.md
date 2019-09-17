@@ -1,12 +1,12 @@
 # Emsmilen
 A quick hack on top of SmileBASIC for the 3DS, a lot like Emscripten
 
-![An old version](screenshot.png) 
-
 It uses WebAssembly disassemblies (compiled with Emscripten and disassembled with Bynarien), and after a quick tweak,
-generates BASIC equivalent code, to be used inside SmileBASIC programs, meant to run on the Nintendo 3DS.3DS
+generates BASIC equivalent code, to be used inside SmileBASIC programs, meant to run on the Nintendo 3DS.
 
 This allows for C++ code to be ported to the 3DS in a 100% legal form.
+
+![An old version](screenshot.png) 
 
 Project status:
 This is a proof of concept (and a quick hack), so only the basics are supported:
