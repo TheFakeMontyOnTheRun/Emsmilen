@@ -1,5 +1,5 @@
 from sexpdata import loads, Symbol
-import sys
+import optparse
 
 from emit_smilebasic import *
 
@@ -265,21 +265,21 @@ def do_nothing_for_now():
 
 
 def emit_diagnostics():
-    print("PRINT \"**\";")
-    print("PRINT \"TOP:\";")
-    print("PRINT TOP;")
-    print("PRINT \" STACK TOP:\";")
-    print("PRINT STACK[TOP]")
+    appendLine("PRINT \"**\";")
+    appendLine("PRINT \"TOP:\";")
+    appendLine("PRINT TOP;")
+    appendLine("PRINT \" STACK TOP:\";")
+    appendLine("PRINT STACK[TOP]")
 
 
 def parse(instruction):
     if instruction[0] in instruction_emitters:
         # print()
         # print()
-        # sys.stdout.write("PRINT\">")
+        # appendText("PRINT\">")
         #
         # for operand in instruction:
-        #     sys.stdout.write(operand + " ")
+        #     appendText(operand + " ")
         #
         # print("<\"")
         # emit_diagnostics()
@@ -334,7 +334,7 @@ def generate_function(func_node):
             elif get_atom_value(node[0]).startswith(";"):
                 continue
             else:
-                print(get_atom_value(node))
+                appendLine(get_atom_value(node))
         else:
             atom_value = get_atom_value(node)
 
@@ -387,7 +387,7 @@ def print_list(nodes, path):
             emit_memory( int(get_atom_value(nodes[3][2])) )
 
         elif exported_func_name == "__indirect_function_table":
-            print("REM TABLE INDIRECTIONS NOT SUPPORTED YET")
+            appendLine("REM TABLE INDIRECTIONS NOT SUPPORTED YET")
 
         else:
             imports["$" + get_atom_value(nodes[1]) + "." + get_atom_value(nodes[2])] = exported_func_name
@@ -428,23 +428,43 @@ def print_list(nodes, path):
 #           else:
 #                print(path + "/" + get_atom_value(node))
 
-with open('simple.dis', 'r') as myfile:
-    data = myfile.read()
-    sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
-    print_list(sexp, "/" + get_atom_value(sexp[0]))
 
-    if "puts" in imports.values():
-        emit_puts()
+if __name__== "__main__":
+    index = 0
+    nextIsOutput = False
+    for filename in sys.argv:
+        if index != 0:
+            if filename == '-o':
+                nextIsOutput = True
+            else:
+                if nextIsOutput:
+                    outputFile = filename
+                else:
+                    with open(filename, 'r') as myfile:
+                        appendLine("REM source: " + filename )
+                        data = myfile.read()
+                        sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
+                        print_list(sexp, "/" + get_atom_value(sexp[0]))
 
-    if "strlen" in imports.values():
-        emit_strlen()
+                        if "puts" in imports.values():
+                            emit_puts()
 
-    if "putchar" in imports.values():
-        emit_putchar()
+                        if "strlen" in imports.values():
+                            emit_strlen()
 
-    print("MEMORY[" + str(end_of_literals + 1) + "] = 1")
-    emit_string_at_address( end_of_literals + 2, "simple.dis\0")
+                        if "putchar" in imports.values():
+                            emit_putchar()
 
-    if "main" in exports.values():
-        ivd = {v: k for k, v in exports.items()}
-        print("PRINT " + filter_func_name(ivd["main"]) + "( 1, " + str (end_of_literals + 2 ) + ", 0 )")
+                        appendLine("MEMORY[" + str(end_of_literals + 1) + "] = 1")
+                        emit_string_at_address(end_of_literals + 2, "simple.dis\0")
+
+                        if "main" in exports.values():
+                            ivd = {v: k for k, v in exports.items()}
+                            appendLine("PRINT " + filter_func_name(ivd["main"]) + "( 1, " + str(end_of_literals + 2) + ", 0 )")
+        index = index + 1
+
+
+
+    with open(outputFile, 'w') as output_file:
+        for t in generated_code:
+            output_file.write(t)

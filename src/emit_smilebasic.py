@@ -1,13 +1,20 @@
 import sys
 
 exports = dict()
-
+generated_code = []
 imports = dict()
 
 declared_func_types = dict()
 function_types = dict()
 scope_stack = []
 pages_number = 0
+
+def appendLine(line):
+    generated_code.append(line)
+    generated_code.append("\n")
+
+def appendText(line):
+    generated_code.append(line)
 
 def filter_var_name(var_name):
     return var_name.replace('$', 'VAR_')
@@ -20,188 +27,188 @@ def filter_label_name(func_name):
     return "L_" + func_name.replace("$", "")
 
 def emit_parameter_list_start():
-    sys.stdout.write("(")
+    appendText("(")
 
 
 def emit_parameter_list_end():
-    print("DUMMY_PAR )\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX\nDIM DUMMY\nDIM PC")
+    appendLine("DUMMY_PAR )\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX\nDIM DUMMY\nDIM PC")
 
 
 def emit_i32_load8_u(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
+    appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
 
 
 def emit_i32_load8_s(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
+    appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
 
 def emit_i32_load16_u(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
+    appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
 
 
 def emit_i32_load16_s(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
+    appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
 
 
 def emit_i32_get(data):
-    print("STACK[TOP + 1] = L" + filter_var_name(data[1]) + "\nINC TOP")
+    appendLine("STACK[TOP + 1] = L" + filter_var_name(data[1]) + "\nINC TOP")
 
 
 def emit_func(data):
-    sys.stdout.write("REM---------------\nDEF " + filter_func_name(data[1]))
+    appendText("REM---------------\nDEF " + filter_func_name(data[1]))
 
 
 def emit_local_get(data):
-    print("STACK[TOP + 1] = L" + filter_var_name(data[1]) + "\nINC TOP")
+    appendLine("STACK[TOP + 1] = L" + filter_var_name(data[1]) + "\nINC TOP")
 
 
 def emit_i32_const(data):
-    print("STACK[TOP + 1] = " + data[1] + "\nINC TOP")
+    appendLine("STACK[TOP + 1] = " + data[1] + "\nINC TOP")
 
 
 def emit_i64_const(data):
-    print("STACK[TOP + 1] = " + data[1] + "\nINC TOP")
+    appendLine("STACK[TOP + 1] = " + data[1] + "\nINC TOP")
 
 
 def emit_i32_add(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = AX + BX\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = AX + BX\nDEC TOP")
 
 
 def emit_global_get(data):
-    print("STACK[TOP + 1] = G" + filter_var_name(data[1]) + "\nINC TOP")
+    appendLine("STACK[TOP + 1] = G" + filter_var_name(data[1]) + "\nINC TOP")
 
 
 def emit_i32_sub(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX - BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX - BX)\nDEC TOP")
 
 
 def emit_block(data):
-    print("@BLOCK_" + filter_label_name(data[1]) + ":")
+    appendLine("@BLOCK_" + filter_label_name(data[1]) + ":")
 
 
 def emit_end(data):
     if len(data) > 1:
-        print("@END_"+ filter_label_name(data[1]) + ":")
+        appendLine("@END_"+ filter_label_name(data[1]) + ":")
     else:
         name = scope_stack[ len(scope_stack) - 1 ][1]
-        print("@END_" + filter_label_name(name) + ":")
+        appendLine("@END_" + filter_label_name(name) + ":")
 
 
 def emit_i32_le_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX >= BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX >= BX)\nDEC TOP")
 
 def emit_i32_lt_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX > BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX > BX)\nDEC TOP")
 
 def emit_i32_gt_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX < BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX < BX)\nDEC TOP")
 
 def emit_i32_eq(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX == BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX == BX)\nDEC TOP")
 
 
 def emit_i32_eqz(data):
-    print("STACK[TOP] = ( STACK[TOP] == 0 )")
+    appendLine("STACK[TOP] = ( STACK[TOP] == 0 )")
 
 
 def emit_i32_ne(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX != BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX != BX)\nDEC TOP")
 
 
 def emit_i32_ge_u(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX <= BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX <= BX)\nDEC TOP")
 
 
 def emit_i32_load(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS]")
+    appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS]")
 
 
 def emit_i64_load(data):
-    print("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS]")
+    appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS]")
 
 
 def emit_i32_and(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX AND BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX AND BX)\nDEC TOP")
 
 
 def emit_i32_shr_u(data):
-    print()
+    appendLine("")
 
 
 def emit_i32_shl(data):
-    print()
+    appendLine("")
 
 
 def emit_offset(data):
-    print("REM OFFSET=" + data[1])
+    appendLine("REM OFFSET=" + data[1])
 
 
 def emit_align(data):
-    print()
+    appendLine("")
 
 
 def emit_i32_xor(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX XOR BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX XOR BX)\nDEC TOP")
 
 
 def emit_i32_or(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX OR BX)\nDEC TOP")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nSTACK[TOP - 1] = (AX OR BX)\nDEC TOP")
 
 
 def emit_i32_rotl(data):
-    print()
+    appendLine("")
 
 
 def emit_i32_store(data):
-    print("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
+    appendLine("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
 
 
 def emit_i64_store(data):
-    print("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
+    appendLine("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
 
 
 def emit_select(data):
-    print("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nIF (STACK[TOP - 2] != 0) THEN\nSTACK[TOP - 2] = AX\nELSE\nSTACK[TOP - 2] = BX\nENDIF\nTOP = TOP - 2")
+    appendLine("AX = STACK[TOP]\nBX = STACK[TOP - 1]\nIF (STACK[TOP - 2] != 0) THEN\nSTACK[TOP - 2] = AX\nELSE\nSTACK[TOP - 2] = BX\nENDIF\nTOP = TOP - 2")
 
 
 def emit_if(data):
-    print("IF (STACK[TOP] == 0) THEN")
+    appendLine("IF (STACK[TOP] == 0) THEN")
 
 
 def emit_else(data):
-    print("ELSE")
+    appendLine("ELSE")
 
 
 def emit_loop(data):
-    print("@BLOCK_" + filter_label_name(data[1]) + ":")
+    appendLine("@BLOCK_" + filter_label_name(data[1]) + ":")
 
 
 def emit_drop(data):
-    print("DEC TOP")
+    appendLine("DEC TOP")
 
 
 def emit_return(data):
-    print("RETURN 0")
+    appendLine("RETURN 0")
 
 
 def emit_memory_grow(data):
-    print("REM MEMORY GROW NOT SUPPORTED")
+    appendLine("REM MEMORY GROW NOT SUPPORTED")
 
 
 def emit_unreachable(data):
-    print('PRINT "UNREACHABLE REACHED!!"\n END')
+    appendLine('PRINT "UNREACHABLE REACHED!!"\n END')
 
 def emit_unsupported(data):
-    print('PRINT "UNSUPPORTED OPERATION REACHED!!"\n END')
+    appendLine('PRINT "UNSUPPORTED OPERATION REACHED!!"\n END')
 
 def emit_current_memory(data):
-    print("STACK[TOP + 1] = " + (pages_number) + "\nINC TOP")
+    appendLine("STACK[TOP + 1] = " + (pages_number) + "\nINC TOP")
 
 def emit_local_tee(data):
-    print("L" + filter_var_name(data[1]) + " = STACK[TOP]")
+    appendLine("L" + filter_var_name(data[1]) + " = STACK[TOP]")
 
 
 def emit_local_set(data):
-    print("L" + filter_var_name(data[1]) + " = STACK[TOP]\nDEC TOP")
+    appendLine("L" + filter_var_name(data[1]) + " = STACK[TOP]\nDEC TOP")
 
 def emit_br(data):
 
@@ -212,10 +219,10 @@ def emit_br(data):
             label_to_jump = "@BLOCK_" + filter_label_name(data[1])
 
 
-    print("GOTO " + label_to_jump )
+    appendLine("GOTO " + label_to_jump )
 
 def emit_local_declaration(data):
-    print("DIM L" + filter_var_name(data))
+    appendLine("DIM L" + filter_var_name(data))
 
 def emit_call(data):
 
@@ -230,20 +237,20 @@ def emit_call(data):
         func_type = function_types[func_name]
 
     if func_type is not None:
-        print("TOP = TOP - " + str(len(func_type.parameters)))
+        appendLine("TOP = TOP - " + str(len(func_type.parameters)))
 
-    sys.stdout.write("DUMMY = " + filter_func_name(func_name) + "(")
+    appendText("DUMMY = " + filter_func_name(func_name) + "(")
     new_top = 0
 
     if func_type is not None:
         for unused in func_type.parameters:
-            sys.stdout.write("STACK[ TOP + " + str(new_top + 1) + "], ")
+            appendText("STACK[ TOP + " + str(new_top + 1) + "], ")
             new_top = new_top + 1
 
-    print(" 0 )")  # dummy parameter
+    appendLine(" 0 )")  # dummy parameter
     if func_type is not None and func_type.returnType is not None:
-        print("INC TOP")
-        print("STACK[TOP] = DUMMY")
+        appendLine("INC TOP")
+        appendLine("STACK[TOP] = DUMMY")
 
 def emit_br_if(data):
 
@@ -253,25 +260,25 @@ def emit_br_if(data):
         if scope[1] == data[1] and scope[0] == "loop":
             label_to_jump = "@BLOCK_" + filter_label_name(data[1])
 
-    print("DEC TOP\nIF (STACK[TOP + 1] != 0) THEN GOTO " + label_to_jump )
+    appendLine("DEC TOP\nIF (STACK[TOP + 1] != 0) THEN GOTO " + label_to_jump )
 
 
 def emit_global_set(data):
-    print("G" + data[1] + " = STACK[TOP]\nDEC TOP")
+    appendLine("G" + data[1] + " = STACK[TOP]\nDEC TOP")
 
 
 def emit_end_function(data, func_type):
     if func_type is not None and func_type.returnType is not None:
-        print("RETURN STACK[TOP]")
+        appendLine("RETURN STACK[TOP]")
     else:
-        print("RETURN 0")
-    print("END")
+        appendLine("RETURN 0")
+    appendLine("END")
 
 
 def emit_memory(pages):
     global pages_number
     pages_number = pages
-    print("DIM MEMORY[1024 * 64 * " + str(pages) + "]\nDIM MEMORY_ADDRESS")
+    appendLine("DIM MEMORY[1024 * 64 * " + str(pages) + "]\nDIM MEMORY_ADDRESS")
 
 
 def emit_empty_param_list():
@@ -280,49 +287,49 @@ def emit_empty_param_list():
 
 
 def emit_parameter_definition(name):
-    sys.stdout.write(filter_var_name(name) + ", ")
+    appendText(filter_var_name(name) + ", ")
 
 def emit_string_at_address(starting_address, null_terminated_string):
     offset = 0
     for ascii_letter in null_terminated_string:
         if ascii_letter is "\\" and null_terminated_string[ offset + 1 ] == '0':
-            print("MEMORY[" + str(starting_address + offset) + "] = 0")
+            appendLine("MEMORY[" + str(starting_address + offset) + "] = 0")
             return offset
         else:
-            print("MEMORY[" + str(starting_address + offset) + "] = " + str(ord(ascii_letter)) )
+            appendLine("MEMORY[" + str(starting_address + offset) + "] = " + str(ord(ascii_letter)) )
         offset += 1
 
     return offset
 
 def emit_puts():
-    sys.stdout.write("REM---------------\nDEF " + filter_func_name("puts"))
+    appendText("REM---------------\nDEF " + filter_func_name("puts"))
     emit_parameter_list_start()
-    sys.stdout.write("PTR, ")
+    appendText("PTR, ")
     emit_parameter_list_end()
-    print("DIM OFFSET = 0")
-    print("WHILE (MEMORY[PTR + OFFSET] != 0)")
-    print("PRINT CHR$(MEMORY[PTR + OFFSET]);")
-    print("INC OFFSET")
-    print("WEND")
-    print("PRINT '' ")
+    appendLine("DIM OFFSET = 0")
+    appendLine("WHILE (MEMORY[PTR + OFFSET] != 0)")
+    appendLine("PRINT CHR$(MEMORY[PTR + OFFSET]);")
+    appendLine("INC OFFSET")
+    appendLine("WEND")
+    appendLine("PRINT '' ")
     emit_end_function(None, None)
 
 def emit_strlen():
-    sys.stdout.write("REM---------------\nDEF " + filter_func_name("strlen"))
+    appendText("REM---------------\nDEF " + filter_func_name("strlen"))
     emit_parameter_list_start()
-    sys.stdout.write("PTR, ")
+    appendText("PTR, ")
     emit_parameter_list_end()
-    print("DIM OFFSET = 0")
-    print("WHILE (MEMORY[PTR + OFFSET] != 0)")
-    print("INC OFFSET")
-    print("WEND")
-    print("RETURN OFFSET ")
+    appendLine("DIM OFFSET = 0")
+    appendLine("WHILE (MEMORY[PTR + OFFSET] != 0)")
+    appendLine("INC OFFSET")
+    appendLine("WEND")
+    appendLine("RETURN OFFSET ")
     emit_end_function(None, None)
 
 def emit_putchar():
-    sys.stdout.write("REM---------------\nDEF " + filter_func_name("putchar"))
+    appendText("REM---------------\nDEF " + filter_func_name("putchar"))
     emit_parameter_list_start()
-    sys.stdout.write("CHAR, ")
+    appendText("CHAR, ")
     emit_parameter_list_end()
-    print("PRINT CHR$(CHAR);")
+    appendLine("PRINT CHR$(CHAR);")
     emit_end_function(None, None)
