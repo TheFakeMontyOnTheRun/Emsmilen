@@ -19,6 +19,9 @@ def appendText(line):
 def filter_var_name(var_name):
     return var_name.replace('$', 'VAR_')
 
+def filter_global_name(global_name):
+    return "G" + global_name.replace('$', 'VAR_').replace('env.', 'ENV_')
+
 def filter_func_name(func_name):
     return "F_" + func_name.replace("$", "")
 
@@ -29,10 +32,11 @@ def filter_label_name(func_name):
 def emit_parameter_list_start():
     appendText("(")
 
-
 def emit_parameter_list_end():
-    appendLine("DUMMY_PAR )\nDIM STACK[128]\nDIM TOP\nDIM AX\nDIM BX\nDIM DUMMY\nDIM PC")
+    appendLine("DUMMY_PAR )\nDIM AX\nDIM BX\nDIM DUMMY\nDIM PC")
 
+def emit_global_import(data):
+    appendLine("DIM " +  filter_global_name(data))
 
 def emit_i32_load8_u(data):
     appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = (MEMORY[MEMORY_ADDRESS])")
@@ -74,7 +78,10 @@ def emit_i32_add(data):
 
 
 def emit_global_get(data):
-    appendLine("STACK[TOP + 1] = G" + filter_var_name(data[1]) + "\nINC TOP")
+    if data[1] == "$env.__stack_pointer":
+        appendLine("STACK[TOP + 1] = TOP + 1\nINC TOP")
+    else:
+        appendLine("STACK[TOP + 1] = " + filter_global_name(data[1]) + "\nINC TOP")
 
 
 def emit_i32_sub(data):
@@ -121,6 +128,8 @@ def emit_i32_ge_u(data):
 def emit_i32_load(data):
     appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS]")
 
+def emit_i32_mem_load(data):
+    appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS + " + data[1] + "]")
 
 def emit_i64_load(data):
     appendLine("MEMORY_ADDRESS = STACK[TOP]\nSTACK[TOP] = MEMORY[MEMORY_ADDRESS]")
@@ -161,6 +170,8 @@ def emit_i32_rotl(data):
 def emit_i32_store(data):
     appendLine("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
 
+def emit_i32_mem_store(data):
+    appendLine("MEMORY[STACK[TOP - 1 ] + " + data[1] + "] = STACK[TOP]\nTOP = TOP - 2")
 
 def emit_i64_store(data):
     appendLine("MEMORY[STACK[TOP - 1 ]] = STACK[TOP]\nTOP = TOP - 2")
@@ -195,7 +206,7 @@ def emit_memory_grow(data):
 
 
 def emit_unreachable(data):
-    appendLine('PRINT "UNREACHABLE REACHED!!"\n END')
+    appendLine('PRINT "UNREACHABLE REACHED!!"\n')
 
 def emit_unsupported(data):
     appendLine('PRINT "UNSUPPORTED OPERATION REACHED!!"\n END')
@@ -247,7 +258,7 @@ def emit_call(data):
             appendText("STACK[ TOP + " + str(new_top + 1) + "], ")
             new_top = new_top + 1
 
-    appendLine(" 0 )")  # dummy parameter
+    appendLine(" TOP )")  # dummy parameter
     if func_type is not None and func_type.returnType is not None:
         appendLine("INC TOP")
         appendLine("STACK[TOP] = DUMMY")
@@ -264,7 +275,10 @@ def emit_br_if(data):
 
 
 def emit_global_set(data):
-    appendLine("G" + data[1] + " = STACK[TOP]\nDEC TOP")
+    if data[1] == "$env.__stack_pointer":
+        appendLine("TOP = STACK[TOP]\nDEC TOP")
+    else:
+        appendLine(filter_global_name(data[1]) + " = STACK[TOP]\nDEC TOP")
 
 
 def emit_end_function(data, func_type):
@@ -278,7 +292,7 @@ def emit_end_function(data, func_type):
 def emit_memory(pages):
     global pages_number
     pages_number = pages
-    appendLine("DIM MEMORY[1024 * 64 * " + str(pages) + "]\nDIM MEMORY_ADDRESS")
+    appendLine("DIM MEMORY[1024 * 64 * " + str(pages) + "]\nDIM MEMORY_ADDRESS\nDIM STACK[1024]\nDIM TOP")
 
 
 def emit_empty_param_list():
@@ -332,4 +346,60 @@ def emit_putchar():
     appendText("CHAR, ")
     emit_parameter_list_end()
     appendLine("PRINT CHR$(CHAR);")
+    emit_end_function(None, None)
+
+def emit_SDL_Init():
+    appendText("REM---------------\nDEF " + filter_func_name("SDL_Init"))
+    emit_parameter_list_start()
+    appendText("UNUSED, ")
+    emit_parameter_list_end()
+    emit_end_function(None, None)
+
+def emit_SDL_Flip():
+    appendText("REM---------------\nDEF " + filter_func_name("SDL_Flip"))
+    emit_parameter_list_start()
+    appendText("UNUSED, ")
+    emit_parameter_list_end()
+    emit_end_function(None, None)
+
+def emit_SDL_Quit():
+    appendText("REM---------------\nDEF " + filter_func_name("SDL_Quit"))
+    emit_parameter_list_start()
+    emit_parameter_list_end()
+    emit_end_function(None, None)
+
+def emit_SDL_PollEvent():
+    appendText("REM---------------\nDEF " + filter_func_name("SDL_PollEvent"))
+    emit_parameter_list_start()
+    appendText("PTR_EVENT, ")
+    emit_parameter_list_end()
+    emit_end_function(None, None)
+
+def emit_SDL_SetVideoMode():
+    appendText("REM---------------\nDEF " + filter_func_name("SDL_SetVideoMode"))
+    emit_parameter_list_start()
+    appendText("XRES, ")
+    appendText("YRES, ")
+    appendText("BPP, ")
+    appendText("FLAGS, ")
+    emit_parameter_list_end()
+    appendLine("XSCREEN 1")
+    emit_end_function(None, None)
+
+def emit_SDL_FillRect():
+    appendText("REM---------------\nDEF " + filter_func_name("SDL_FillRect"))
+    emit_parameter_list_start()
+    appendText("PTR_VIDEO, ")
+    appendText("PTR_RECT, ")
+    appendText("COLOUR, ")
+    emit_parameter_list_end()
+    appendLine("DIM X = (MEMORY[PTR_RECT + 0] )")
+    appendLine("DIM Y = (MEMORY[PTR_RECT + 1] )")
+    appendLine("DIM W = (MEMORY[PTR_RECT + 2] )")
+    appendLine("DIM H = (MEMORY[PTR_RECT + 3] )")
+    appendLine("GFILL X, Y, W, H, COLOUR")
+    appendLine("PRINT X")
+    appendLine("PRINT Y")
+    appendLine("PRINT W")
+    appendLine("PRINT H")
     emit_end_function(None, None)

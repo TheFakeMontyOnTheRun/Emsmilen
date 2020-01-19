@@ -6,6 +6,7 @@ from emit_smilebasic import *
 end_of_literals = 0
 
 operands_per_instructions = {
+    "i32.mem_store": 1,
     "i32.load8_s": 0,
     "i32.load8_u": 0,
     "i32.load16_s": 0,
@@ -36,6 +37,7 @@ operands_per_instructions = {
     "i32.ge_u": 0,
     "i32.ge_s": 0,
     "i32.load": 0,
+    "i32.mem_load": 1,
     "i64.load": 0,
     "i32.and": 0,
     "i32.lt_u": 0,
@@ -113,6 +115,7 @@ instruction_emitters = {
     "i32.ge_u": emit_i32_ge_u,
     "i32.ge_s": emit_i32_ge_u,
     "i32.load": emit_i32_load,
+    "i32.mem_load": emit_i32_mem_load,
     "i64.load": emit_i64_load,
     "i32.and": emit_i32_and,
     "i32.lt_u": emit_i32_lt_u,
@@ -128,6 +131,7 @@ instruction_emitters = {
     "i32.or": emit_i32_or,
     "i32.rotl": emit_i32_rotl,
     "f32.store": emit_i32_store,
+    "i32.mem_store": emit_i32_mem_store,
     "i32.store": emit_i32_store,
     "i32.store8": emit_i32_store,
     "i32.store16": emit_i32_store,
@@ -302,6 +306,7 @@ def generate_function(func_node):
     pending_operands = 0
     func_name = get_atom_value(func_node[1])
     emit_func(["func", func_name])
+    exports[func_name] = filter_func_name(func_name)
 
     parse_parameters_definition(func_node)
 
@@ -338,39 +343,40 @@ def generate_function(func_node):
         else:
             atom_value = get_atom_value(node)
 
-            if atom_value.startswith(";"):
-                print("Line comments are not supported for now - sorry")
-                exit(-1)
-
-            if len(buffered_nodes) == 0:
-                if atom_value not in operands_per_instructions:
-                    print("instruction not handled: " + atom_value)
+            if atom_value != "":
+                if atom_value.startswith(";"):
+                    print("Line comments are not supported for now - sorry")
                     exit(-1)
 
-                pending_operands = operands_per_instructions[atom_value]
-                buffered_nodes.append(atom_value)
-            else:
-                pending_operands = pending_operands - 1
-                buffered_nodes.append(atom_value)
+                if len(buffered_nodes) == 0:
+                    if atom_value not in operands_per_instructions:
+                        print("instruction not handled: " + atom_value + " from " + str(node))
+                        exit(-1)
 
-            if pending_operands == 0:
+                    pending_operands = operands_per_instructions[atom_value]
+                    buffered_nodes.append(atom_value)
+                else:
+                    pending_operands = pending_operands - 1
+                    buffered_nodes.append(atom_value)
 
-                if buffered_nodes[0] == "block":
-                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
-                elif buffered_nodes[0] == "if":
-                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
-                elif buffered_nodes[0] == "loop":
-                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
-                elif buffered_nodes[0] == "else":
-                    scope_top = scope_stack.pop()
-                    scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
+                if pending_operands == 0:
 
-                parse(buffered_nodes)
+                    if buffered_nodes[0] == "block":
+                        scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
+                    elif buffered_nodes[0] == "if":
+                        scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
+                    elif buffered_nodes[0] == "loop":
+                        scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
+                    elif buffered_nodes[0] == "else":
+                        scope_top = scope_stack.pop()
+                        scope_stack.append([buffered_nodes[0], buffered_nodes[1]])
 
-                if buffered_nodes[0] == "end":
-                    scope_top = scope_stack.pop()
+                    parse(buffered_nodes)
 
-                buffered_nodes = []
+                    if buffered_nodes[0] == "end":
+                        scope_top = scope_stack.pop()
+
+                    buffered_nodes = []
 
     emit_end_function(func_node, func_type)
 
@@ -383,15 +389,21 @@ def print_list(nodes, path):
 
     if path == "/module/import":
         exported_func_name = get_atom_value(nodes[2])
+
+        type_of_node = get_atom_value(nodes[3][0])
+
         if exported_func_name == "__linear_memory":
-            emit_memory( int(get_atom_value(nodes[3][2])) )
+            appendLine("REM MEMORY USAGE IMPORT")
+            #emit_memory( int(get_atom_value(nodes[3][2])) )
 
         elif exported_func_name == "__indirect_function_table":
             appendLine("REM TABLE INDIRECTIONS NOT SUPPORTED YET")
 
-        else:
+        elif type_of_node == "func":
             imports["$" + get_atom_value(nodes[1]) + "." + get_atom_value(nodes[2])] = exported_func_name
             function_types[exported_func_name] = declared_func_types[get_atom_value(nodes[3][2][1])]
+        elif type_of_node == "global":
+            emit_global_import(get_atom_value(nodes[3][1]) )
 
     if path == "/module/data":
         literal = ""
@@ -432,6 +444,8 @@ def print_list(nodes, path):
 if __name__== "__main__":
     index = 0
     nextIsOutput = False
+    emit_memory(8);
+
     for filename in sys.argv:
         if index != 0:
             if filename == '-o':
@@ -446,25 +460,45 @@ if __name__== "__main__":
                         sexp = loads(data, nil='nop', true='true', false='false', line_comment=";;")
                         print_list(sexp, "/" + get_atom_value(sexp[0]))
 
-                        if "puts" in imports.values():
-                            emit_puts()
-
-                        if "strlen" in imports.values():
-                            emit_strlen()
-
-                        if "putchar" in imports.values():
-                            emit_putchar()
-
-                        appendLine("MEMORY[" + str(end_of_literals + 1) + "] = 1")
-                        emit_string_at_address(end_of_literals + 2, "simple.dis\0")
-
-                        if "main" in exports.values():
-                            ivd = {v: k for k, v in exports.items()}
-                            appendLine("PRINT " + filter_func_name(ivd["main"]) + "( 1, " + str(end_of_literals + 2) + ", 0 )")
         index = index + 1
-
-
-
+        
     with open(outputFile, 'w') as output_file:
+
+        if "puts" in imports.values():
+            emit_puts()
+
+        if "strlen" in imports.values():
+            emit_strlen()
+
+        if "putchar" in imports.values():
+            emit_putchar()
+
+        if "SDL_FillRect" in imports.values():
+            emit_SDL_FillRect()
+
+        if "SDL_Init" in imports.values():
+            emit_SDL_Init()
+
+        if "SDL_SetVideoMode" in imports.values():
+            emit_SDL_SetVideoMode()
+
+        if "SDL_Flip" in imports.values():
+            emit_SDL_Flip()
+
+        if "SDL_Quit" in imports.values():
+            emit_SDL_Quit()
+
+        if "SDL_PollEvent" in imports.values():
+            emit_SDL_PollEvent()
+
+
+        appendLine("MEMORY[" + str(end_of_literals + 1) + "] = 1")
+        appendLine("REM argv[0] follows bellow")
+        emit_string_at_address(end_of_literals + 2, outputFile + "\0")
+
+        if "F_main" in exports.values():
+            ivd = {v: k for k, v in exports.items()}
+            appendLine("PRINT F_main( 1, " + str(end_of_literals + 2) + ", 0 )")
+
         for t in generated_code:
             output_file.write(t)

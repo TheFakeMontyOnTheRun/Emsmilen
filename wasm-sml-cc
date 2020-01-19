@@ -2,6 +2,11 @@
 
 deleteTemps=1
 verbose=0
+justCompile=0
+customOutput=0
+outputFile="a.txt"
+linkerLine=""
+
 compile() {
     filename=$(basename -- "$1")
     extension="${filename##*.}"
@@ -11,17 +16,20 @@ compile() {
 	echo "Compiling $1 to WASM"
     fi
 
-    emcc -Oz -g -c -o $filename.wasm $1
+    emcc -O3 -g -c -o $filename.wasm $1
 
     if [ $verbose -eq 1 ]; then
 	echo "Optimizing"
     fi
-    ~/git/emsdk/binaryen/master_64bit_binaryen/bin/wasm-opt $filename.wasm --dce --directize --flatten --i64-to-i32-lowering --vacuum -o "${filename}"_opt.wasm
 
+    ~/git/emsdk/binaryen/master_64bit_binaryen/bin/wasm-opt $filename.wasm --enable-mutable-globals --flatten --i64-to-i32-lowering -o "${filename}"_opt.wasm
+
+#    cp  "${filename}".wasm  "${filename}"_opt.wasm
+    
     if [ $verbose -eq 1 ]; then
 	echo "Generating WAT"
     fi
-    ~/git/emsdk/upstream/bin/wasm2wat --generate-names  "${filename}"_opt.wasm > $filename.wat
+    ~/git/wabt/bin/wasm2wat --generate-names --read-linking-names  "${filename}"_opt.wasm > $filename.wat
 
     if [ $verbose -eq 1 ]; then
 	echo "Fixing format do DIS"
@@ -38,10 +46,6 @@ compile() {
     fi
 }
 
-justCompile=0
-customOutput=0
-outputFile="a.txt"
-linkerLine=""
 while [ "$1" != "" ]; do
     case $1 in
         -c )                    justCompile=1
@@ -61,17 +65,14 @@ while [ "$1" != "" ]; do
         -h | --help )           echo "wasm-sml-cc -c FILENAME.c or wasm-sml-cc FILENAME.c -o program.txt or even wasm-sml FILENAME.dis -o program.txt"
 	                        exit 0
                                 ;;
-
         -o )                    shift
 	                        if [ $justCompile -eq 1 ]; then
 				    echo "select either -c or -o"
 				    exit 1
 				fi
-
 	                        outputFile=$1
 				customOutput=1
                                 ;;
-
         * )                     
 	                        compile $1
 				filename=$(basename -- "$1")
@@ -81,7 +82,6 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
-
 
 if [ $justCompile -eq 0 ]; then
     python src/parse_sexpression.py $linkerLine -o $outputFile
